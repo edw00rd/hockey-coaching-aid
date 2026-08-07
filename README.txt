@@ -1,46 +1,46 @@
-BOTD HOCKEY COACHING AID — VERSION 5.0
+BOTD HOCKEY COACHING AID — VERSION 5.1
 Creator: Nicholas Heller
-Release date: 2026-08-04
+Release date: 2026-08-06
 
 OVERVIEW
 
 BOTD Hockey Coaching Aid is a standalone HTML5 hockey coaching board for desktop
-browsers, iPad, touch, mouse, and Apple Pencil. Version 5.0 replaces the former
-turn-based authoring model with one continuous timeline shared by every player
-movement and every puck event.
+browsers, iPad, touch, mouse, and Apple Pencil. Version 5.1 preserves the Version
+5 continuous-timeline model while substantially refining the workspace for live
+presentation, tablet use, and rapid puck-route authoring.
 
-Players now own movement tracks only. The puck owns possession, passes, drops,
-and shots. A coach can record all skating routes first, play those routes, and
-tap players or open ice to direct the puck in real time. Puck-event chips can be
-dragged along the timeline afterward to adjust release and possession timing
-without redrawing a player's skating path.
+Players own movement clips on one shared timeline. The puck owns possession,
+passes, drops, and shots on that same clock. The coach can record skating first,
+play or scrub the routes, direct the puck by selecting players or open ice, and
+then retime movement clips and puck events without redrawing the play.
 
 The complete application is contained in index.html. It uses no external
-JavaScript libraries, server process, account, database, analytics service, or
-network request. Nicholas Heller is acknowledged in the HTML source and this
-README as the creator of the application, product concept, coaching workflow,
-feature direction, and user experience.
+JavaScript libraries, fonts, server process, account, database, analytics
+service, or network request. Nicholas Heller is acknowledged in the HTML source
+and this README as the creator of the application, product concept, coaching
+workflow, feature direction, and user experience.
 
 GITHUB PACKAGE CONTENTS
 
-BOTD_Hockey_Coaching_Aid_v5.0_GitHub.zip contains exactly these four updated
+BOTD_Hockey_Coaching_Aid_v5.1_GitHub.zip contains exactly these four current
 files at its root, with no enclosing folder:
 
 - index.html
-  The complete Version 5.0 application and GitHub Pages entry point.
+  The complete Version 5.1 application and GitHub Pages entry point.
 - README.txt
-  Deployment instructions, operating guidance, Version 5.0 release notes,
-  compatibility notes, validation details, known limitations, and the complete
-  detailed history from Version 0.1 through Version 5.0.
+  Deployment instructions, operating guidance, Version 5.1 release notes,
+  compatibility and migration notes, validation details, known limitations,
+  and the complete detailed history from Version 0.1 through Version 5.1.
 - Preview.png
-  A 1920 x 1080 screenshot generated from this exact Version 5.0 index.html.
+  A 1920 x 1080 screenshot generated directly from this exact Version 5.1
+  index.html.
 - .nojekyll
   An empty marker telling GitHub Pages to publish the repository as a plain
   static site without Jekyll processing.
 
 DEPLOYING TO GITHUB PAGES
 
-1. Extract BOTD_Hockey_Coaching_Aid_v5.0_GitHub.zip.
+1. Extract BOTD_Hockey_Coaching_Aid_v5.1_GitHub.zip.
 2. Open the root of the repository used by GitHub Pages.
 3. Upload index.html, README.txt, Preview.png, and .nojekyll.
 4. Replace the prior versions of those files.
@@ -61,212 +61,202 @@ browser-storage origins. Saved Version 5 plays do not move between those
 locations automatically; use Playbook JSON export and import when transferring
 between devices or addresses.
 
-VERSION 5.0 RELEASE NOTES
+VERSION 5.1 RELEASE NOTES
 
-SINGLE CONTINUOUS TIMELINE
+RESPONSIVE DRAWER WORKSPACE
 
-- Removed the turn builder, turn completion workflow, canonical turn reuse, and
-  per-turn action lanes from active authoring.
-- Added one continuous time ruler shared by all movement clips and puck events.
-- Added a dedicated player row for every on-ice object and a dedicated puck row.
-- Added a draggable playhead and direct scrubbing from the ruler or any track.
-- Added start, previous action, back 0.1 second, Play/Pause, forward 0.1 second,
-  next action, and end controls.
-- Added direct timeline-length editing from 4 through 60 seconds.
-- Kept reversible playback at multiple speed settings.
+- Removed the close-X controls from both side panels.
+- Converted Board Setup and Inspector into persistent edge-operated drawers.
+- Added visible left- and right-edge handles that remain available after a
+  drawer is collapsed.
+- Made the rink automatically refit after either drawer opens or closes.
+- Allowed the rink to expand through the released horizontal space when one or
+  both drawers are hidden.
+- Preserved overlay-drawer behavior at tablet widths so opening a panel does not
+  permanently compress the rink.
+- Kept the top-left and top-right drawer buttons synchronized with the edge
+  handles.
+- Replaced the drawing-clear X glyph with a distinct clear-telestration symbol
+  so no remaining X appears to be a panel-close control.
 
-PLAYER MOVEMENT TRACKS
+MINIMIZABLE, FULL-WIDTH TIMELINE
 
-- Players, goalies, coaches, and managers now own movement only.
-- Selecting a rink token opens a Player Movement inspector rather than a puck-
-  action or possession panel.
-- Record Path creates a movement clip beginning at the current playhead.
-- The real time used to trace a route becomes the initial movement duration.
-- Each movement clip has independently editable start time and duration.
-- Movement clips can be dragged horizontally along the timeline.
-- Multiple players can move simultaneously because clips overlap on the same
-  master clock.
-- A player can have more than one non-destructive movement clip.
-- Adding a bench object to the ice still does not open its inspector; the user
-  must select the rink token directly.
+- Added true timeline minimization rather than a reduced-height collapsed state.
+- Kept a toolbar control available to restore the timeline after it is hidden.
+- Expanded the rink vertically when the timeline is minimized.
+- Made the timeline dock occupy the full viewport width, independently of side-
+  drawer state.
+- Recalculated seconds-to-pixels from the live timeline-body width.
+- Used adaptive tick spacing so long timelines remain legible on narrower
+  screens.
+- Re-rendered the timeline automatically after viewport, drawer, and timeline
+  size changes.
+- Preserved movement-clip dragging, puck-event dragging, reversible scrubbing,
+  transport controls, and alternate puck-route takes.
 
-PUCK DIRECTOR
+SELECTED-OBJECT PRESENTATION
 
-- Selecting the puck opens the new Puck Director.
-- The puck, rather than a player, owns Possess, Pass, Drop, and Shot events.
-- Set Possession assigns the puck to any eligible on-ice player at the current
-  playhead.
-- Pass creates a receiver-targeted event from the current carrier.
-- Shot targets any open-ice or net location.
-- Drop releases an attached puck at the selected timeline time.
-- The Pass Speed, sauce, and Ignore Defense defaults remain adjustable.
-- Shot power and Ignore Defense remain adjustable.
-- Selecting a puck-event chip opens a precise event inspector.
-- Puck-event chips can be dragged directly along the timeline.
-- Event-time sliders provide a second fine-adjustment method.
-- Pass geometry and moving-receiver lead calculations update whenever the event
-  time or player movement changes.
-- A puck event that overlaps an earlier in-flight puck is marked invalid rather
-  than silently producing an impossible sequence.
+- Changed the selected-player and selected-puck dashed ring to black for clear
+  contrast against white ice.
+- Replaced constant-speed ring rotation with a variable-speed “vroom vroooom”
+  animation that accelerates and eases during each cycle.
+- Kept reduced-motion browser preferences respected by disabling the decorative
+  animation when requested by the operating system.
+- Added a player Glow control to the Player Movement inspector.
+- Added a separate puck Glow control to Puck Director.
+- Added independently adjustable glow color, brightness, blink enablement, and
+  blink rate for both player tokens and the puck.
+- Preserved player glow profiles in saved state and Playbook JSON.
+- Added a saved global puck-glow profile to Version 5.1 state.
 
-LIVE PUCK DIRECTING
+POSSESSION-TARGET VISIBILITY
 
-- Direct Live from Playhead plays the recorded skating routes while accepting
-  rink taps as puck decisions.
-- Tapping a player while the puck is loose creates possession at that instant.
-- Tapping another player while the puck is possessed creates a pass at that
-  instant.
-- Tapping open ice creates a shot to that location.
-- Pointer-down processing is used during live playback so continuously rendered
-  SVG tokens cannot swallow every-other Apple Pencil or touch contact.
-- The coach can pause, scrub, drag event chips, change timing, and replay without
-  changing player movement.
+- Replaced the compact possession select field with a large scrollable list of
+  on-ice players.
+- Added team-color dots and team names to each possession choice.
+- Added a red targeting triangle around the matching rink token whenever a
+  possession choice is hovered, keyboard-focused, or selected.
+- Kept the triangle visible for the selected target even when token names,
+  numbers, positions, and leadership labels are hidden.
+- Retained the same target marker while retargeting an existing possession or
+  pass event.
 
-ALTERNATE PUCK ROUTE TAKES
+PAUSED-PUCK POSITION CORRECTION
 
-- Player movement is shared across independent puck-route takes.
-- + Puck Take creates a blank alternative without redrawing skating paths.
-- Copy duplicates the active puck take for variation editing.
-- New Take + Direct from Start creates a blank take and immediately begins live
-  puck directing from the beginning.
-- The active take can be selected from both the Puck Director and timeline.
-- Deleting or clearing a puck take never deletes player movement.
+- Fixed the intermittent paused puck jump to the SVG origin in the upper-left
+  corner.
+- Separated puck translation from puck-spin rotation into nested SVG groups.
+- Applied translation only to the outer puck group and spin only to the inner
+  puck artwork.
+- Added a last-valid-position guard for non-finite transient geometry.
+- Stopped cosmetic puck spin while paused without changing the puck's calculated
+  timeline position.
 
-PUCK SIMULATION
+LIGHT AND DARK APPEARANCE
 
-- Pass arrival leads a moving receiver from that receiver's timeline position.
-- Pass speed changes travel time without changing skating routes.
-- Saucer passes retain a distinct in-flight presentation.
-- When Ignore Defense is off, the puck checks skater and goalie intersections.
-- An obstructed pass can use a one-bank path only when its second leg is no
-  longer than its first leg; otherwise it attempts the direct path.
-- Shot power changes travel speed.
-- Player and goalie blocks leave the puck loose.
-- Shots entering the goal mouth remain inside the net and trigger the visual
-  GOAL presentation and browser-local siren.
-- Puck travel, possession bands, pass spans, and event validity are reconstructed
-  at every scrubbed timeline position.
+- Added a Settings appearance selector with Light and Dark modes.
+- Made Light mode the default for fresh Version 5.1 boards.
+- Enlarged core controls, timeline transport buttons, drawer widths, and touch
+  targets.
+- Reworked Light mode around a USA Hockey-inspired navy, blue, red, white, and
+  ice-blue presentation palette.
+- Added low-glare Dark mode while preserving the same spatial hierarchy.
+- Updated panels, benches, timeline tracks, dialogs, inputs, toast messages,
+  and command controls for both themes.
+- Updated the browser theme-color metadata when the theme changes.
+- This visual treatment is an original coaching-aid interface and does not imply
+  endorsement by or affiliation with USA Hockey.
 
-DRAWING AND PRESENTATION
+LANGUAGE SUPPORT
 
-- Select, Pencil, and Erase remain in the bottom command bar.
-- Marker color uses the same Grid, Spectrum, and RGB Sliders workflow used for
-  team and player colors.
-- Marker width is edited in the same marker window.
-- Consecutive mouse, touch, or Apple Pencil strokes can be drawn while playback
-  is running or paused.
-- Recorded routes can be shown in full, shown ahead while erasing behind, or
-  hidden.
-- Player presentation glow remains available as a visual highlight independent
-  of puck ownership.
-- Full-screen focus mode, collapsible drawers, token display settings, custom
-  center artwork, playbook artwork, team colors, roster editing, RH/LH player
-  information, offside light, and JSON backup remain available.
+- Added a Settings language selector for:
+  - US English
+  - Canadian English
+  - Swedish
+  - Finnish
+  - Russian
+- Localized the primary navigation, Settings, Playbook controls, timeline,
+  movement and puck inspectors, glow controls, possession workflow, and major
+  status labels.
+- Stored the selected language in the Version 5.1 browser session.
+- Added the playful Canadian-English mode requested by the creator: translated
+  interface strings receive “eh,” and a red maple leaf appears at center ice.
+- Kept team names, player names, play names, coach-authored notes, and imported
+  user data exactly as entered rather than altering them with localization.
+- Browser-generated error text and operating-system file-picker text remain
+  controlled by the browser and device.
 
-REWRITTEN VERSION 5 PLAYBOOK
+VERSION 5.1 WORKFLOW
 
-The Version 4 turn-based playbook is not imported into Version 5. Version 5 ships
-with ten newly generated continuous-timeline templates:
+1. Place players from either bench or load a Version 5 template.
+2. Select a player on the ice and record one or more movement clips beginning at
+   the current playhead.
+3. Select the puck to open Puck Director.
+4. Hover or focus a player in the possession list to identify that token with the
+   red targeting triangle.
+5. Add possession, passes, drops, or open-ice shots on the shared timeline.
+6. Drag movement clips and puck-event chips, or use the Inspector sliders, to
+   refine timing.
+7. Scrub or play the timeline in either direction.
+8. Enable player or puck Glow when emphasizing a read during a presentation.
+9. Collapse either side drawer, minimize the timeline, or hide all three to give
+   the rink the maximum available screen area.
+10. Use Pencil or Erase during playback or while paused to telestrate over the
+    animation.
+11. Save the current timeline to the Playbook and export JSON backups when
+    moving between browsers or devices.
 
-Quick setups:
-1. 5v5 Center Faceoff
-2. 3v3 Center Faceoff
-3. 5v4 Power Play
-4. 3v2 Rush
-5. 2v1 Rush
+STORAGE AND VERSION MIGRATION
 
-Continuous-timeline core plays:
-1. Strong-Side Breakout
-2. D-to-D Neutral-Zone Regroup
-3. 1-2-2 Forecheck
-4. Half-Ice Low-to-High Overload Cycle
-5. Half-Ice Box + 1 Defensive-Zone Coverage
+Version 5.1 uses these browser-storage keys:
 
-The quick setups provide ready-made on-ice personnel and geometry. Core plays
-include overlapping movement clips and puck events that demonstrate the Version
-5 timeline. They can be replayed, scrubbed, retimed, copied into alternative puck
-takes, or saved as user plays.
+botdHockeyCoachingAid.session.v5_1
+botdHockeyCoachingAid.playbook.v5_1
 
-VERSION 5.0 WORKFLOW
+On first launch, Version 5.1 checks the Version 5.0 keys when no Version 5.1
+session exists. Version 5.0 teams, rosters, on-ice setup, movement clips, puck
+route takes, drawings, display settings, Playbook entries, and custom artwork
+are normalized into Version 5.1. The new appearance setting defaults to Light
+and the new puck-glow profile defaults to disabled.
 
-1. Place players from the benches or load a Version 5 template.
-2. Select a player directly on the rink.
-3. Set the playhead to that player's desired start time.
-4. Select Record Path and trace the route.
-5. Repeat for every player. Overlapping clips move simultaneously.
-6. Select the puck.
-7. Set initial possession at the current time, or select Direct Live.
-8. During Direct Live, tap players for possession or passes and open ice for a
-   shot.
-9. Pause and drag puck-event chips to fine-tune timing.
-10. Select movement clips to trim their start and duration.
-11. Create additional puck takes to demonstrate alternate decisions while
-    preserving all skating routes.
-12. Play, step, scrub, draw, and present the completed play.
-13. Save to the Version 5 Playbook and export JSON for backup.
+Version 4 turn/action-lane data is still not migrated automatically because it
+cannot be translated reliably into independent continuous movement tracks and
+puck-route takes. Version 4 releases remain usable separately.
 
-STORAGE AND COMPATIBILITY
-
-Version 5.0 uses new storage keys:
-
-- botdHockeyCoachingAid.session.v5_0
-- botdHockeyCoachingAid.playbook.v5_0
-
-Version 4.4 sessions and Playbook entries are not migrated automatically because
-the former turn/action-lane structure cannot be translated reliably into the new
-continuous player-track and puck-take architecture. Version 4.4 remains usable as
-a separate historical release. Rebuild important Version 4 plays in Version 5,
-or retain screenshots and JSON exports as reference.
-
-Default embedded BOTD artwork is not duplicated into browser storage. Custom
-uploaded images are resized locally before persistence. Local browser storage is
-per browser and per website origin; it is not a shared team database.
+A browser's local file origin and a GitHub Pages origin are different storage
+locations. Export Playbook JSON before changing domains, repository paths,
+browsers, or devices.
 
 KNOWN LIMITATIONS
 
-- Puck and collision physics are coaching-oriented tactical approximations, not a
-  full rigid-body simulation.
-- A puck event cannot begin while an earlier puck flight is still active. The
-  event is marked invalid until retimed.
-- Moving-player collision checks use short time samples rather than infinitesimal
-  continuous collision detection.
-- Bank-pass selection uses straight wall segments and one bounce.
-- Alternate puck takes share player movement but do not branch roster or setup
-  geometry.
-- Offside tracking is a token-based teaching indicator, not an officiating or
-  video-review system.
-- Apple Pencil secondary/double-tap exposure depends on iPadOS and Safari. The
-  visible toolbar remains the reliable tool-selection fallback.
-- GitHub Pages supplies static hosting only. It does not provide user accounts,
-  cloud synchronization, permissions, or a shared database.
+- Physical iPad and Apple Pencil hardware was not available during release
+  validation. Tablet dimensions, touch targets, and pointer behavior were tested
+  with browser emulation.
+- The coach-oriented physics model is designed for tactical visualization, not
+  officiating review or rigid-body scientific simulation.
+- Live player collisions along curved, concurrently moving routes are sampled
+  rather than solved continuously.
+- Browser audio policies may require a direct user gesture before the first goal
+  siren or other synthesized sound.
+- Native fullscreen, vibration, file pickers, and Pencil secondary gestures vary
+  by browser and operating-system support.
+- Localization applies to application interface text. User-entered names,
+  imported content, and browser-generated system messages are not translated.
+- The Canadian-English center maple leaf is a built-in presentation overlay. A
+  coach's custom center-ice image remains available beneath it and returns
+  unchanged when another language is selected.
 
-VALIDATION PERFORMED
+RELEASE VALIDATION
 
-The final Version 5.0 build was checked with Chromium automation for:
+The final Version 5.1 release was exercised in headless Chromium with repeatable
+checks covering:
 
-- JavaScript syntax and application startup.
-- Empty fresh-board state.
-- Ten rewritten Playbook templates.
-- Bench placement without automatic inspector opening.
-- Direct rink selection and Player Movement inspector opening.
-- Timed route recording and timeline clip creation.
-- Overlapping movement clips.
-- Movement-clip timing controls.
-- Puck possession, pass, shot, and drop reconstruction.
-- Moving-receiver pass prediction.
-- Direct timeline dragging of puck events.
-- Alternate puck takes that preserve movement.
-- Live possession and pass taps during active playback.
-- Half-Ice portrait rendering and rotated/cropped center artwork.
-- Two consecutive drawing contacts while playback was active.
-- Bidirectional scrub and 0.1-second step controls.
-- 1920 x 1080 preview generation.
-- 1194 x 834 responsive layout without document overflow.
-- Console and runtime error monitoring.
-- ZIP root filenames and compressed-data integrity.
+- Version number and clean startup
+- Light-mode default and Dark-mode switching
+- Absence of drawer close-X controls
+- Animated black selected-object ring
+- Player Glow and puck Glow controls
+- Player and puck glow color dialogs
+- Possession-list hover, focus, selection, and rink targeting triangle
+- Paused in-flight puck position and nested spin rendering
+- Full-viewport timeline width and adaptive track scaling
+- Left and right drawer collapse and rink expansion
+- Timeline minimization and vertical rink expansion
+- Swedish, Finnish, Russian, and Canadian-English interface switching
+- Canadian-English “eh” text and center maple leaf
+- All ten Version 5 templates
+- Timeline step controls after repeated layout changes
+- Version 5.0 state normalization into Version 5.1
+- Desktop 1920 x 1080 rendering
+- 1366 x 1024, 1024 x 1366, and 820 x 1180 responsive layouts
+- No document overflow with both drawers and timeline hidden
+- JavaScript syntax validation
+- PNG dimensions and decoding
+- ZIP root paths, file names, and compressed-data integrity
 
-Physical iPad and Apple Pencil hardware was not available in the build
-environment; tablet dimensions and pointer behavior were browser-emulated.
+No unexpected JavaScript runtime errors occurred in the exercised workflows.
+The Preview.png included in the package was captured from the final index.html,
+not from an earlier development build.
 
 COMPLETE DETAILED VERSION HISTORY
 
@@ -738,6 +728,44 @@ VERSION 5.0 — SINGLE TIMELINE, PUCK DIRECTOR, AND ALTERNATE ROUTE TAKES
 - Reduced browser-storage use by keeping default embedded artwork out of saved
   session JSON.
 - Generated Preview.png from the final Version 5.0 index.html.
+- Packaged exactly index.html, README.txt, Preview.png, and .nojekyll at the ZIP
+  root.
+
+
+VERSION 5.1 — RESPONSIVE DRAWERS, PRESENTATION TARGETING, THEMES, AND LANGUAGES
+
+- Removed both side-drawer close-X buttons and replaced them with persistent edge
+  handles.
+- Made the rink refit and expand when Board Setup, Inspector, or both are hidden.
+- Preserved overlay drawer behavior at tablet widths.
+- Added true timeline minimization and made the rink use the released vertical
+  space.
+- Made the timeline span and rescale to the complete viewport width.
+- Added responsive seconds-to-pixels calculation and adaptive tick intervals.
+- Replaced the white selected-object ring with a black high-contrast ring.
+- Added a variable-speed “vroom vroooom” ring animation with reduced-motion
+  support.
+- Replaced the possession target select field with a large on-ice player list.
+- Added a red rink targeting triangle for the hovered, focused, or selected
+  possession target.
+- Added persistent player Glow controls with color, brightness, blink, and rate.
+- Added matching puck Glow controls and saved puck-glow state.
+- Fixed the paused puck jumping to the upper-left SVG origin by separating puck
+  translation and rotation into nested groups.
+- Added a last-valid puck-position safeguard and paused-spin behavior.
+- Added Light and Dark themes, with Light as the default.
+- Enlarged controls and adopted a USA Hockey-inspired navy, blue, red, white, and
+  ice-blue visual system without representing an official affiliation.
+- Added Settings language support for US English, Canadian English, Swedish,
+  Finnish, and Russian.
+- Added playful Canadian-English “eh” interface text and a center-ice maple leaf.
+- Kept user-entered names and imported Playbook content unchanged by language
+  selection.
+- Added Version 5.1 browser-storage keys and migration from Version 5.0.
+- Retained all ten continuous-timeline templates and existing Version 5 movement,
+  puck directing, alternate takes, physics, telestration, offside, Playbook, and
+  JSON features.
+- Generated a new 1920 x 1080 Preview.png from the final Version 5.1 application.
 - Packaged exactly index.html, README.txt, Preview.png, and .nojekyll at the ZIP
   root.
 
