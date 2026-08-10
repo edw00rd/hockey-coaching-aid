@@ -1,26 +1,27 @@
-BOTD HOCKEY COACHING AID — VERSION 5.2
+BOTD HOCKEY COACHING AID — VERSION 5.3
 Creator: Nicholas Heller
-Release date: 2026-08-08
+Release date: 2026-08-10
 
 OVERVIEW
 
 BOTD Hockey Coaching Aid is a standalone HTML5 hockey coaching board for desktop
-browsers, iPad, touch, mouse, and Apple Pencil. Version 5.2 restores the classic
-bench cards and hockey-piece shapes requested by the creator, loads a canonical
-5-on-5 center-faceoff setup, and adds safe replacement editing and reusable play
-options to the continuous Version 5 timeline.
+browsers, iPad, touch, mouse, and Apple Pencil. Version 5.3 adds frame-accurate
+player action revision to the continuous Version 5 timeline: a coach can play a
+recorded sequence, pause at any moment, select a moving player, and replace or
+reclassify that player's action from the exact paused position without changing
+the route prefix that has already occurred.
 
-Players, goalies, coaches, and managers own movement clips on one shared clock.
-The puck owns possession, passes, drops, shots, and replacement seed events on
-that same clock. A coach can record movement, scrub to any moment, replace an
-individual object's future path without stacking an illegal overlap, and copy a
-time range into a separate Option for a different pass, shot, read, or route.
+The new Change Action workflow supports Forward, Backward, Crossover, Glide, and
+Stop / Hold. A replacement can redraw only a chosen time window and reconnect the
+later track, or replace that player's entire future from the playhead. Existing
+movement clips are split by interpolating the exact point on the recorded
+polyline. The track remains chronological and non-overlapping, the change is one
+undoable transaction, and Cancel leaves the original timeline untouched.
 
-The normal workspace is rink-first: both side drawers and the timeline begin
-minimized. The compact bottom command bar remains available for drawing,
-selection, undo/redo, timeline access, stepping, route display, and fullscreen.
-Opening or closing a drawer resizes the rink instead of permanently covering the
-working area, and the expanded timeline continues to span the full viewport.
+Version 5.3 retains Version 5.2's classic bench cards and hockey-piece shapes,
+canonical 5-on-5 setup, rink-first workspace, collapsible full-width timeline,
+Record NEW Puck Route From Playhead, and independent Copy & Reuse play Options.
+Players, goalies, staff objects, and the puck still share one master clock.
 
 The complete application is contained in index.html. It uses no external
 JavaScript libraries, fonts, server process, account, database, analytics
@@ -30,17 +31,17 @@ workflow, feature direction, and user experience.
 
 GITHUB PACKAGE CONTENTS
 
-BOTD_Hockey_Coaching_Aid_v5.2_GitHub.zip contains exactly these four current
+BOTD_Hockey_Coaching_Aid_v5.3_GitHub.zip contains exactly these four current
 files at its root, with no enclosing folder:
 
 - index.html
-  The complete Version 5.2 application and GitHub Pages entry point.
+  The complete Version 5.3 application and GitHub Pages entry point.
 - README.txt
-  Deployment instructions, operating guidance, Version 5.2 release notes,
+  Deployment instructions, operating guidance, Version 5.3 release notes,
   compatibility and migration notes, validation details, known limitations,
-  and the complete detailed history from Version 0.1 through Version 5.2.
+  and the complete detailed history from Version 0.1 through Version 5.3.
 - Preview.png
-  A 1920 x 1080 screenshot generated directly from this exact Version 5.2
+  A 1920 x 1080 screenshot generated directly from this exact Version 5.3
   index.html.
 - .nojekyll
   An empty marker telling GitHub Pages to publish the repository as a plain
@@ -48,7 +49,7 @@ files at its root, with no enclosing folder:
 
 DEPLOYING TO GITHUB PAGES
 
-1. Extract BOTD_Hockey_Coaching_Aid_v5.2_GitHub.zip.
+1. Extract BOTD_Hockey_Coaching_Aid_v5.3_GitHub.zip.
 2. Open the root of the repository used by GitHub Pages.
 3. Upload index.html, README.txt, Preview.png, and .nojekyll.
 4. Replace the prior versions of those files.
@@ -69,161 +70,181 @@ browser-storage origins. Saved Version 5 plays do not move between those
 locations automatically; use Playbook JSON export and import when transferring
 between devices or addresses.
 
-VERSION 5.2 RELEASE NOTES
+VERSION 5.3 RELEASE NOTES
 
-CLASSIC BENCH AND HOCKEY-PIECE LANGUAGE
+FRAME-ACCURATE CHANGE ACTION WORKFLOW
 
-- Replaced the compact bench dots with wide classic cards showing the player's
-  team-colored piece, name, number, position, handedness, and line or pair.
-- Restored skaters as circular team-color pieces with a thick contrasting trim.
-- Restored the small separate position badge at the upper-right of each skater.
-- Restored goalies as vertical pad-style rectangles with contrasting bars and a
-  separate G badge.
-- Restored the head coach and manager as rounded rectangles with a center stripe
-  and separate HC or MGR badge.
-- Kept the previously requested black animated dashed selection indicator as an
-  outer layer so selecting an object never changes its underlying shape.
-- Kept the red possession-target triangle independent of names, numbers,
-  positions, and leadership labels.
+- Added a persistent Change Action command to the compact bottom toolbar. It
+  appears after an on-ice object or one of its movement clips is selected and
+  continuously displays the current playhead time.
+- While playback is running, tapping a moving player immediately pauses the play,
+  selects that player, and retains the exact current playhead timestamp.
+- Change Action opens at that exact timestamp rather than snapping to the start
+  or end of the original clip.
+- The editor states the original action and clip range, confirms that everything
+  before the paused frame remains exact, and previews the effect of the chosen
+  duration and replacement scope.
+- The C keyboard shortcut opens Change Action for the selected player or clip
+  when focus is not inside an input control.
+- Double-clicking a movement clip opens the same frame-accurate editor.
 
-CANONICAL LOADING AND BENCH ORDER
+ACTION VOCABULARY
 
-- A fresh board now opens with 16 objects already placed: five skaters, one
-  goalie, one head coach, and one manager for each team.
-- The center-faceoff order is deterministic and mirrored:
-  1. Center
-  2. Upper wing — LW for the left-side team and RW for the right-side team
-  3. Lower wing — RW for the left-side team and LW for the right-side team
-  4. Upper defense — LD
-  5. Lower defense — RD
-- Both starting goalies load at the center of their own goal mouths.
-- Staff load in the requested center-ice staging positions, with each head coach
-  closer to center and each manager outside that coach.
-- Bench order is deterministic rather than dependent on object-creation order.
-  Forward lines are grouped C, LW, RW and defensive pairs are grouped LD, RD.
-- Normalized rink coordinates preserve the whole-ice formation across viewport
-  and drawer-size changes.
+Version 5.3 records one action type on each movement segment:
 
-RINK-FIRST WORKSPACE AND TIMELINE DRAWER
+- Forward
+  Normal forward skating along the recorded route.
+- Backward
+  Backward-skating notation along the newly traced or preserved route.
+- Crossover
+  Lateral or crossover skating notation for blue-line movement, gap control,
+  side-to-side support, and similar coaching concepts.
+- Glide
+  A lower-effort coasting segment.
+- Stop / Hold
+  A stationary segment at the exact playhead position for a chosen duration.
 
-- Fresh boards begin with Board Setup, Inspector, and the timeline minimized.
-- The rink uses the horizontal and vertical space released by each minimized
-  region.
-- Added a labeled Timeline control to the bottom command bar, including clear
-  Open/Hide state and direction feedback.
-- Retained the original compact timeline toggle and the expanded timeline's own
-  collapse control.
-- Kept the expanded timeline full-width and responsive to viewport changes.
-- Added a dedicated branch bar for the active play Option, reusable-range In and
-  Out markers, Copy & Reuse, and option deletion.
-- Preserved the compact bottom controls from Version 5.1, including selection,
-  drawing, erasing, marker color, undo, redo, telestration clear, step controls,
-  route display, and fullscreen.
+Each action is identified in the expanded timeline, by a distinct route style,
+and by a compact badge on the active player token. Legacy movement clips without
+an action type are normalized to Forward without changing their route geometry
+or timing.
 
-NON-OVERLAPPING PLAYER MOVEMENT
+CHANGING BOTH PATH AND ACTION
 
-- Movement clips for one object may touch at their boundaries but cannot overlap.
-- Imported, restored, newly recorded, dragged, and Inspector-edited movement
-  tracks are normalized into a single unambiguous sequence per object.
-- When a later clip begins inside an earlier clip, the earlier clip is split or
-  trimmed at the new start rather than being drawn underneath the later clip.
-- Polyline slicing interpolates the exact route point at the split timestamp.
-- Timeline dragging and Inspector sliders are constrained by the previous and
-  next clips on the same object track.
-- Undo snapshots include variations and the active option so replacement edits
-  remain reversible.
+1. Play or scrub the sequence to the decision point.
+2. Pause, or tap the moving player to pause automatically.
+3. Select Change Action.
+4. Choose Forward, Backward, Crossover, Glide, or Stop / Hold.
+5. Choose the replacement duration.
+6. Choose how the later track should be handled.
+7. Select Trace New Route and draw the new path from the highlighted anchor.
+8. Release the pointer or Pencil to commit the revision.
 
-RECORD NEW PATH FROM PLAYHEAD
+The replacement always starts at the selected player's exact interpolated
+position at the playhead. The trace cannot alter the route that occurred before
+that timestamp. The chosen duration controls how long the player takes to travel
+the traced path; draw time does not determine playback duration.
 
-This action begins at the object's exact interpolated state at the current
-playhead. It preserves all earlier movement, splits a clip crossing the
-playhead, removes that object's movement after the split, and records the new
-route as the replacement future. Other object tracks are left unchanged.
+CHANGING ACTION WHILE KEEPING THE CURRENT ROUTE
 
-RECORD NEW PATH FROM HERE
+When a recorded movement crosses the playhead and a different non-stationary
+action is selected, Keep Route applies the new action label to the chosen
+portion of the existing polyline. The route, timing, speed along the route, and
+later clips remain unchanged. This is useful when the player should follow the
+same geometry but perform it backward, as a crossover, or as a glide.
 
-This action continues from the end of the selected movement clip, the end of the
-clip containing the playhead, or the most recent applicable clip endpoint. It
-keeps the completed route and replaces later movement for that object. The same
-action is available from a selected clip.
+REPLACEMENT SCOPES
 
-RECORD NEW PUCK ROUTE FROM PLAYHEAD
+KEEP LATER ACTIONS CONNECTED
 
-- Preserves puck action before the playhead.
-- Evaluates the exact puck position and possession at the playhead.
-- Truncates an in-progress puck flight at that position when necessary.
-- Removes later puck events from the active take.
-- Seeds the replacement future with either possession or a loose-puck placement.
-- Prevents the replacement seed from being rejected as an overlapping in-flight
-  event.
+- Replaces only the chosen playhead-to-end time window.
+- Preserves the exact prefix before the playhead.
+- Splits any original clip crossing either boundary.
+- Keeps later clips at their original timestamps and durations.
+- Translates the later route geometry as one connected sequence so the first
+  later clip begins at the new endpoint without a position jump.
+- Keeps action labels and timing on the later clips.
+- Clamps translated points to the rink's legal drawing area.
 
-COPY & REUSE PLAY OPTIONS
+REPLACE THIS PLAYER'S FUTURE
 
-1. Open the timeline.
-2. Scrub to the desired range start and press Set In.
-3. Scrub to the desired range end and press Set Out.
-4. Press Copy & Reuse.
-5. Use the Option selector to move between the original and copied outcomes.
+- Preserves the exact prefix before the playhead.
+- Removes every later movement clip belonging to the selected player.
+- Adds the newly traced action as that player's replacement future.
+- Leaves all other object tracks and puck-event definitions unchanged.
+- Holds the player at the new endpoint after the replacement action finishes
+  until another action is added.
 
-Copy & Reuse creates a new independent Option. It captures every on-ice object's
-position at the range start, trims and time-shifts all intersecting movement
-clips, captures puck position or possession at the range start, copies puck
-events from the active route inside the range, carries the board view and
-telestration, and positions the playhead at the copied range's end. The copied
-Option receives new clip, event, take, and option identifiers, so later editing
-does not mutate the source Option.
+SAFE TIMELINE EDITING
 
-VERSION 5.2 WORKFLOW
+- A player's movement clips may touch at boundaries but cannot overlap.
+- Polyline slicing evaluates the precise route point at the split time.
+- A replacement made in the middle of a clip creates a retained prefix and, when
+  applicable, a reconnected suffix rather than stacking another clip over it.
+- Stop / Hold creates a stationary two-point segment at the evaluated playhead
+  position.
+- Starting trace mode does not change timeline data. The edit is committed only
+  when a valid route is released.
+- Canceling the editor or trace mode restores the unchanged original timeline.
+- One Undo restores the complete pre-revision player track. One Redo restores
+  the complete revision.
 
-1. Start from the canonical 5-on-5 setup, open Board Setup, or load a Playbook
-   template.
-2. Select an object on the rink; the Inspector opens without requiring the full
-   timeline.
-3. Use Record NEW Path From Playhead to revise a route at a precise moment, or
-   Record NEW Path From Here to continue from an existing clip endpoint.
-4. Select the puck and author possession, passes, drops, or shots.
-5. Use Record NEW Puck Route From Playhead when the outcome after a decision
-   point must change.
-6. Open the timeline for detailed scrubbing, clip/event timing, or branching.
-7. Set In and Out, then use Copy & Reuse to create another play Option.
-8. Switch Options to present different reads, passes, shots, or routes without
-   altering the original outcome.
-9. Minimize the timeline and either side drawer for the largest possible rink.
+PLAYBACK, INSPECTOR, AND VISUAL FEEDBACK
+
+- The selected player's Inspector shows the active action at the playhead and a
+  direct Change Action command even when the expanded timeline is hidden.
+- The movement-clip Inspector exposes an action selector for notation-only
+  changes and a Change From Playhead command for geometry changes.
+- Timeline clips show the action name, symbol, start time, and end time.
+- Forward, Backward, Crossover, and Glide routes use distinct line treatments.
+  Stop / Hold displays a hold marker.
+- A compact symbol on a moving token identifies non-default actions during
+  playback.
+- The exact edit anchor is highlighted on the rink while the action editor or
+  route-tracing mode is active.
+- The Change Action dialog remains usable at tested desktop, portrait tablet,
+  and narrow phone dimensions; its body scrolls while the commit controls remain
+  available.
+
+PUCK AND MULTI-PLAYER BEHAVIOR
+
+Changing one player's movement does not mutate another player's movement track.
+Existing puck-event definitions are retained. When the edited player possesses
+the puck, the puck continues to follow that player's recalculated stick position
+until a release, pass, shot, or replacement puck event. The existing puck engine
+re-evaluates lead, travel, collisions, and validity against the revised player
+positions during playback.
+
+VERSION 5.3 WORKFLOW
+
+1. Build the initial play by recording paths and puck actions as before.
+2. Press Play and watch the full sequence.
+3. At the moment a read, route, or skating technique should change, tap the
+   moving player or pause and select that player.
+4. Press Change Action in the bottom command bar or Inspector.
+5. Choose the action, duration, and replacement scope.
+6. Keep the existing route or trace a new one from the exact paused position.
+7. Replay the sequence and repeat at any later or earlier decision point.
+8. Use Undo and Redo to compare fine-tuning choices safely.
+9. Use Copy & Reuse when the alternative should become a separate play Option
+   rather than replace the active Option.
 10. Save the play to the Playbook and export JSON before moving to another
     browser, device, domain, or repository path.
 
-RETAINED VERSION 5.1 FEATURES
+RETAINED VERSION 5.2 FEATURES
 
-- Responsive side drawers with persistent edge handles and no close-X buttons.
-- Animated black selection ring with reduced-motion support.
-- Possession target list and rink targeting triangle.
-- Player and puck Glow controls.
-- Paused-puck position correction and nested puck spin.
-- Light and Dark themes.
-- US English, Canadian English, Swedish, Finnish, and Russian interface modes.
-- Canadian-English maple leaf and playful “eh” localization.
-- Reversible timeline playback and scrubbing, alternate puck-route takes,
-  telestration, offside status, coaching-oriented pass and shot behavior,
-  Playbook storage, and JSON backup.
+- Classic wide bench cards and deterministic line/pair order.
+- Circular skaters, vertical goalie-pad pieces, and rectangular HC/MGR pieces.
+- Canonical mirrored 5-on-5 center-faceoff loading with goalies in their nets.
+- Rink-first startup with both side drawers and the timeline minimized.
+- Full-width collapsible timeline and compact bottom controls.
+- Non-overlapping movement-track normalization and constrained clip timing.
+- Record NEW Path From Playhead and Record NEW Path From Here entry points.
+- Record NEW Puck Route From Playhead.
+- Independent Copy & Reuse play Options with In and Out range markers.
+- Responsive drawers, black animated selection ring, possession target triangle,
+  Glow controls, themes, languages, telestration, offside display, Playbook, and
+  JSON import/export.
 
 STORAGE AND VERSION MIGRATION
 
-Version 5.2 uses these browser-storage keys:
+Version 5.3 uses these browser-storage keys:
 
-botdHockeyCoachingAid.session.v5_2
-botdHockeyCoachingAid.playbook.v5_2
+botdHockeyCoachingAid.session.v5_3
+botdHockeyCoachingAid.playbook.v5_3
 
-When no Version 5.2 session exists, the application first checks the Version 5.1
-keys and then the Version 5.0 keys. Compatible teams, rosters, on-ice setup,
-movement clips, puck-route takes, drawings, display settings, appearance,
-Playbook entries, custom artwork, and Glow settings are normalized into Version
-5.2. A migrated play without options becomes Option 1. Existing Version 5.1
-on-ice positions are preserved rather than forcibly replaced by the fresh-board
-canonical setup.
+When no Version 5.3 session exists, the application first checks Version 5.2,
+then Version 5.1, and finally Version 5.0 storage. Compatible teams, rosters,
+on-ice setup, movement clips, puck-route takes, drawings, display settings,
+appearance, Playbook entries, custom artwork, Glow settings, and play Options
+are normalized into Version 5.3. Existing movement clips gain a Forward action
+label when no action metadata is present. Geometry, timing, identities, and
+Option independence are preserved during that normalization.
 
-Version 4 turn/action-lane data is still not migrated automatically because it
-cannot be translated reliably into independent continuous movement tracks and
-puck-route takes. Version 4 releases remain usable separately.
+Existing Version 5.2 positions are not replaced by the fresh-board canonical
+setup. Version 4 turn/action-lane data is still not migrated automatically
+because it cannot be translated reliably into independent continuous movement
+tracks and puck-route takes. Version 4 releases remain usable separately.
 
 A browser's local file origin and a GitHub Pages origin are different storage
 locations. Export Playbook JSON before changing domains, repository paths,
@@ -234,10 +255,17 @@ KNOWN LIMITATIONS
 - Physical iPad and Apple Pencil hardware was not available during release
   validation. Tablet dimensions, touch targets, and pointer behavior were tested
   with browser emulation.
+- Forward, Backward, Crossover, Glide, and Hold are tactical timeline notation.
+  Version 5.3 does not rotate a player's body graphic or simulate skate edges,
+  hip orientation, acceleration curves, or biomechanical technique.
+- Keep Later Actions Connected translates future route geometry as a group. If a
+  translated point would leave the rink, that point is clamped to the legal
+  drawing area; a route very near the boards can therefore change shape slightly.
+- The timeline is limited to 60 seconds per play.
 - Copy & Reuse copies the currently active puck route for the selected range into
   one new play Option. Other alternate puck-route takes remain with the source
   Option unless separately copied.
-- Play Options are independent alternatives selected from a list; Version 5.2
+- Play Options are independent alternatives selected from a list; Version 5.3
   does not render a nested node-and-edge branch graph.
 - The coach-oriented physics model is designed for tactical visualization, not
   officiating review or rigid-body scientific simulation.
@@ -247,40 +275,49 @@ KNOWN LIMITATIONS
   siren or other synthesized sound.
 - Native fullscreen, vibration, file pickers, and Pencil secondary gestures vary
   by browser and operating-system support.
-- Localization applies to application interface text. User-entered names,
-  imported content, and browser-generated system messages are not translated.
+- Localization applies to the established application interface. New Version 5.3
+  action-editor text is currently English, and user-entered names, imported
+  content, and browser-generated system messages are not translated.
 
 RELEASE VALIDATION
 
-The final Version 5.2 release was exercised in headless Chromium with repeatable
+The final Version 5.3 release was exercised in headless Chromium with repeatable
 checks covering:
 
-- Version number and clean startup
-- Rink-first default with both side drawers and timeline minimized
-- Canonical 16-object loading and exact starting coordinates
-- Goalies centered in their own nets
-- Mirrored C, wing, and defense order
-- Classic skater, goalie, coach, and manager SVG shapes
-- Wide bench cards and deterministic line/pair order
-- Position badges enabled on a fresh board
-- Timeline drawer opening, closing, full-width sizing, and branch controls
-- Inspector access while the timeline is minimized
-- Both player replacement-recording actions
-- Overlap normalization with later-clip precedence
-- Exact polyline interpolation when splitting a route at the playhead
-- Removal of one object's future without changing unrelated tracks
-- Copy & Reuse range trimming, shifting, puck seeding, and source metadata
-- Independence of copied and source Options
-- Puck-route replacement during an in-progress flight without a position jump
-- Desktop 1920 x 1080 rendering
-- Responsive 1366 x 1024, 1024 x 1366, and 820 x 1180 rendering checks
-- JavaScript syntax validation
+- Version number, clean startup, and JavaScript syntax validation
+- Version 5.2 classic-piece, canonical-loading, bench-order, and rink-first
+  regression checks
+- Legacy movement normalization to Forward without geometry loss
+- Exact playhead interpolation and route-prefix preservation
+- Replace This Player's Future behavior
+- Keep Later Actions Connected behavior, timing preservation, and route
+  reconnection without a position jump
+- Stop / Hold creation at the evaluated playhead position
+- Action-only relabeling while preserving current route and timing
+- Dialog Cancel and route-trace Cancel with no timeline mutation
+- Actual pointer-drawn replacement-route recording
+- One-step Undo and Redo of a complete revision transaction
+- Timeline action labels, route styles, and live token badges
+- Movement-clip Inspector action editing
+- Automatic pause and exact-frame retention when tapping a moving player
+- No movement overlap after replacement
+- Isolation of unrelated player tracks and puck-event definitions
+- Copy & Reuse independence after action revision changes
+- Record NEW Puck Route From Playhead regression behavior
+- Migration from Version 5.2 storage to Version 5.3 keys
+- Responsive 1366 x 1024, 1024 x 1366, 820 x 1180, 768 x 1024, and
+  390 x 844 rendering checks
+- Action-dialog bounds, footer availability, touch-control sizing, and absence of
+  document-width overflow at the tested viewports
+- Desktop 1920 x 1080 preview rendering
 - PNG dimensions and decoding
 - ZIP root paths, file names, and compressed-data integrity
 
-No unexpected JavaScript runtime errors occurred in the exercised workflows.
-The Preview.png included in the package was captured from the final index.html,
-not from an earlier development build.
+No unexpected JavaScript runtime errors occurred in the exercised file-based
+release workflows. Tests that inject the complete HTML with setContent report
+expected localStorage security warnings because that synthetic document has no
+storage origin; file-based migration and release smoke tests use a real file
+origin and passed.
 
 COMPLETE DETAILED VERSION HISTORY
 
@@ -837,6 +874,42 @@ VERSION 5.2 — CLASSIC PIECES, SAFE PATH REPLACEMENT, AND REUSABLE PLAY OPTIONS
   possession target triangle, Glow controls, themes, languages, paused-puck fix,
   telestration, offside display, Playbook, and JSON import/export.
 - Rebuilt Preview.png from the final Version 5.2 application.
+- Packaged exactly index.html, README.txt, Preview.png, and .nojekyll at the ZIP
+  root.
+
+VERSION 5.3 — FRAME-ACCURATE PLAYER ACTION REVISION
+
+- Added Change Action to the persistent bottom command bar for the selected
+  player or movement clip.
+- Made tapping a moving player during playback pause immediately while retaining
+  the exact playhead timestamp.
+- Added an action editor that opens at the exact interpolated player position.
+- Added Forward, Backward, Crossover, Glide, and Stop / Hold movement metadata.
+- Added selectable action durations and quick duration controls.
+- Added Keep Later Actions Connected, preserving later clip times while
+  translating future geometry to reconnect at the new endpoint.
+- Added Replace This Player's Future, preserving the exact prefix and removing
+  only the selected player's later clips.
+- Added Keep Route action changes for reclassifying a segment without changing
+  its path, timing, speed, or later movement.
+- Added route tracing from a highlighted playhead anchor with commit-on-release
+  and cancel-without-mutation behavior.
+- Added exact clip splitting at both replacement boundaries.
+- Preserved the no-overlap invariant after all action revisions.
+- Made each revision one Undo/Redo transaction.
+- Added timeline action names and symbols, differentiated route notation, hold
+  markers, and active-token action badges.
+- Added current-action information and Change From Playhead controls to the
+  Inspector.
+- Added double-click and C-key access to the action editor.
+- Normalized Version 5.2 clips without action metadata to Forward.
+- Added Version 5.3 storage keys and migration fallback through Versions 5.2,
+  5.1, and 5.0.
+- Updated Playbook export filenames to identify Version 5.3.
+- Retained and regression-tested Copy & Reuse, puck-future replacement, classic
+  pieces, canonical setup, responsive drawers, full-width timeline, Playbook,
+  themes, languages, and GitHub Pages packaging.
+- Generated Preview.png from the final Version 5.3 application.
 - Packaged exactly index.html, README.txt, Preview.png, and .nojekyll at the ZIP
   root.
 
