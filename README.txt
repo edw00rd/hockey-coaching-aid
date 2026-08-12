@@ -1,111 +1,90 @@
-BOTD Hockey Coaching Aid v5.5
+BOTD Hockey Coaching Aid v5.6
 Creator: Nicholas Heller
 
 Release focus
 -------------
-Version 5.5 refines the rink-first workspace around two team benches and makes a Move edit behave like rerouting a GPS track from an exact point in time.
+Version 5.6 makes puck direction faster to use, reduces Inspector clutter, and gives passes and shots clearer tactical notation on the ice.
 
-Pause the play at any frame, select one player, and choose Move from the displayed timestamp. The new trace begins at that player's exact interpolated location. That player's route before the timestamp is preserved; only that player's future movement is replaced. No other player track is reset or rewritten.
+The possession workflow now matches the existing tap-target workflow used for passes: choose Set possession, then tap the intended player directly on the rink. Pass, shot, and highlight settings remain available without occupying the Inspector until they are needed.
 
-What's new in v5.5
+What's new in v5.6
 ------------------
-1. Two team benches
-   - The bench area has returned to exactly two benches: one for each team.
-   - Only pieces not currently on the ice appear on a bench.
-   - Each team's bench follows a deterministic hockey lineup order:
-       Starting goalie
-       First-line forwards: LW, C, RW
-       First defensive pair: LD, RD
-       Second-line forwards
-       Second defensive pair
-       Third-line forwards
-       Third defensive pair
-       Additional forward lines or defensive pairs in the same sequence
-       Backup goalie
-       Head coach
-       Manager
-   - The order remains stable as pieces are placed on and returned from the ice.
+1. Tap-to-set possession
+   - Removed the scrollable player list from the Puck Director Inspector.
+   - Replaced it with one Set possession · tap player command.
+   - Selecting the command does not create an event immediately.
+   - The next eligible on-ice player tapped becomes the possession target at the current playhead time.
+   - The targeting mode clears after the player is selected.
+   - Coaches and managers are excluded from possession targeting.
 
-2. Collapsible bench drawer
-   - A full-width Team Benches header now hides or reveals both team benches together.
-   - The drawer reports the current number of available pieces for each team.
-   - Collapsing the benches returns vertical space to the rink.
-   - The control exposes an expanded/collapsed state for keyboard and assistive-technology use.
+2. Compact Inspector disclosures
+   - Pass Defaults is now an expandable section.
+   - Shot Defaults is now an expandable section.
+   - Highlight is now an expandable section for both players and the puck.
+   - Sections begin collapsed to recover vertical space.
+   - Each section uses a > indicator when closed and a V indicator when open.
+   - Expanded state is retained while the Inspector rerenders during the current session.
+   - Disclosure controls expose their expanded/collapsed state for keyboard and assistive-technology use.
 
-3. Simplified top toolbar
-   - Removed the top buttons that duplicated the left and right drawer tabs.
-   - The top toolbar now retains only:
-       BOTD playbook image, software title, and version
-       New
-       Save play
-       Full-screen
-   - The existing edge tabs remain the controls for opening Board Setup and Inspector.
+3. Revised puck silhouette
+   - Replaced the oval/football-like puck drawing with a flatter rectangular side profile.
+   - Removed the curved top line.
+   - Added subtle straight edge details and a shadow so the puck remains visible over the ice and center logo.
+   - Updated the puck identity icon in the Inspector to use the same flatter visual language.
 
-4. Exact Move-from-playhead editing
-   - The Inspector presents the selected player's command with the exact playhead time, such as Move from 0:01.3.
-   - Starting Move captures that player's exact interpolated position before any timeline data is changed.
-   - If the timestamp falls inside an existing route, that route is split at the precise frame.
-   - The route prefix before the frame remains unchanged.
-   - All later movement is removed only from the selected player's track.
-   - The replacement trace starts at the captured position, preventing a jump or teleport.
-   - Every other player's movement clips remain unchanged.
-   - Puck events and setup positions remain unchanged by the player-route edit.
-   - Movement clips can meet at a boundary but cannot overlap.
-   - Cancel leaves the original timeline untouched.
-   - A committed replacement is one Undo/Redo transaction.
+4. Clear pass and shot notation
+   - Pass routes now use a black dashed line with a black directional arrow.
+   - Shot routes now use an animated alternating red-and-black dashed line.
+   - The shot arrowhead carries the same red-and-black treatment.
+   - Pass and shot styling remains distinct from each player's team-colored movement route.
+   - Systems requesting reduced motion receive the same shot pattern without animation.
 
-5. Route-only movement controls
-   - Removed the Skating Action choices and related Forward, Backward, Crossover, Glide, and Stop/Hold notation controls.
-   - Player clips and timeline labels now use the single, direct Move concept.
-   - Older files containing action metadata continue to load; their route geometry and timing are retained and displayed as Move clips.
-
-6. One timeline visibility control
-   - Removed the duplicate Timeline HIDE text control.
-   - The bottom-toolbar chevron remains the single show/hide control for the timeline.
-
-7. Clean New board retained
-   - New still creates an empty sheet of ice with no players, goalies, or staff deployed.
-   - Complete rosters remain available on the two ordered team benches.
-   - Existing role-based default placement coordinates remain available when pieces are placed back on the ice.
+5. Player Inspector refinements
+   - Moved Return to bench into the top player identity card beside the player's name and lineup information.
+   - Move After Current Path is disabled and visibly grayed out when the selected player has no recorded movement path.
+   - The command becomes available automatically after that player has at least one movement clip.
+   - Move from the current playhead remains available for creating the player's first path.
 
 Systems retained
 ----------------
-- Classic skater, goalie, coach, manager, and bench-card shapes.
-- Canonical mirrored deployment positions for pieces placed on the ice.
-- Goalies placed in their proper nets.
+- Two ordered team benches and the collapsible Team Benches drawer.
+- Clean New board with no pieces deployed.
+- Simplified top toolbar and side-drawer edge tabs.
+- Exact selected-player route replacement from any playhead frame.
 - Independent player timelines and non-overlapping movement clips.
-- Puck route editing from the playhead.
-- Copy & Reuse play options.
-- Collapsible side drawers and a collapsible full-width timeline.
-- Rink themes, languages, display controls, presentation glow, playbook storage, and JSON transfer.
-- Storage fallback and migration from Versions 5.4, 5.3, 5.2, 5.1, and 5.0.
+- Puck route replacement from the playhead.
+- Alternate puck takes and Copy & Reuse play options.
+- Classic skater, goalie, coach, manager, and bench-card shapes.
+- Canonical role-based placement positions and goalies in their nets.
+- Collapsible side drawers and full-width timeline.
+- Rink themes, languages, display controls, presentation highlighting, playbook storage, and JSON transfer.
+- Storage fallback from Versions 5.5, 5.4, 5.3, 5.2, 5.1, and 5.0.
 
 Validation performed
 --------------------
 - JavaScript syntax validation with Node.js.
 - Chromium initialization and runtime-error checks.
-- Verified the requested top-toolbar controls and retained side tabs.
-- Verified exactly two team benches and removal of the three category benches.
-- Verified bench collapse/expand behavior and accessibility state.
-- Verified New creates an empty ice surface and exposes all 22 roster entries per team.
-- Verified the complete bench order, including starter and backup goalie labels and staff at the end.
-- Verified exact interpolation at a 1.3-second mid-route edit point.
-- Verified the actual Inspector button labeled Move from 0:01.3 starts at 1.3 seconds rather than resetting to zero.
-- Verified starting Move does not mutate any movement track.
-- Verified the selected route prefix is preserved and its old future is removed.
-- Verified an actual pointer-drawn route starts at the exact edit anchor and commits on release without teleportation.
-- Verified other-player tracks, puck events, and setup positions remain unchanged.
-- Verified no overlapping movement clips after replacement.
-- Verified removal of visible skating-action controls and generic Move timeline labels.
-- Verified one Undo restores the complete pre-edit timeline.
-- Verified Version 5.4 session migration to Version 5.5.
-- Responsive browser checks at 1024 x 768, 820 x 1180, and 390 x 844.
+- 56 focused browser assertions covering the Version 5.6 changes and responsive rendering.
+- Verified the possession player list is absent.
+- Verified Set possession · tap player creates no event until an on-ice player is tapped.
+- Verified the resulting possession event targets the tapped player and targeting mode then clears.
+- Verified Pass Defaults, Shot Defaults, and Highlight begin collapsed and expand with > / V indicators.
+- Verified disclosure state survives Inspector rerenders during the session.
+- Verified the rink puck uses a flat rectangular body and contains no curved top path.
+- Verified the Inspector puck icon is wider than it is tall and no longer uses a football-like oval.
+- Verified pass paths render as black dashed routes.
+- Verified shots render as separate red and black dashed layers with continuous animation and a two-tone arrowhead.
+- Verified Return to bench is inside the top player identity card.
+- Verified Move After Current Path is disabled with no movement clips and enabled after a clip is recorded.
+- Verified no runtime errors after the complete interaction sequence.
+- Responsive checks at 1366 x 1024, 1024 x 768, 820 x 1180, 768 x 1024, and 390 x 844.
 - Release preview generated at 1920 x 1080.
 
 Physical iPad and Apple Pencil hardware were not available for release validation. Tablet dimensions, responsive behavior, touch-sized controls, and pointer interactions were exercised in Chromium.
 
 Version history
 ---------------
+5.6 - Tap-to-set possession, compact Inspector disclosures, revised puck silhouette, dashed pass notation, animated red-and-black shot notation, top-positioned Return to bench, and context-aware Move After Current Path.
 5.5 - Two ordered team benches, bench drawer, simplified top toolbar, exact selected-player future-route replacement, route-only Move controls, and one timeline toggle.
 5.4 - GPS-style player route replacement from the playhead, clean New board, and experimental category benches.
 5.3 - Frame-accurate action revision workflow and action notation.
