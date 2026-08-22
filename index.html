@@ -2,8 +2,8 @@
 <!--
   BOTD Hockey Coaching Aid
   Creator: Nicholas Heller
-  Version: 5.10
-  Release architecture: classic hockey pieces, independent player route editing, ordered team benches, reusable play options, and responsive drawers.
+  Version: 6.0
+  Release architecture: rink-first floating controls, independent player route editing, ordered team benches, reusable play options, and camera-based Half Ice.
 -->
 <html lang="en">
 <head>
@@ -11,7 +11,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta id="themeColorMeta" name="theme-color" content="#F3F7FB">
 <meta name="author" content="Nicholas Heller">
-<title>BOTD Hockey Coaching Aid v5.10</title>
+<title>BOTD Hockey Coaching Aid v6.0</title>
+<link rel="icon" href="data:,">
 <style>
 :root{
   --navy:#061423;--navy2:#0b2034;--panel:#10283e;--panel2:#17364f;--line:#2c4b64;
@@ -333,7 +334,7 @@ body.theme-light .timeline-branchbar .puck-route-cluster select{background:#fff;
 }
 
 
-/* Version 5.10: rink-view controls live on the rink, not in Settings. */
+/* Version 6.0: rink-view controls live on the rink, not in Settings. */
 .rink-frame.half{aspect-ratio:20/17}
 .view-badge{appearance:none;-webkit-appearance:none;z-index:7;min-height:27px;color:#edf6fb;line-height:1;border:1px solid #3c5b72;cursor:pointer;font-family:inherit;transition:top .16s ease,background .16s ease,transform .12s ease}
 .view-badge:hover{background:#0d2b41ee;transform:translateY(-1px)}
@@ -349,11 +350,121 @@ body.theme-light .timeline-branchbar .puck-route-cluster select{background:#fff;
 .token-role-text{dominant-baseline:central;alignment-baseline:central}
 @media(max-width:560px){.half-end-pill{left:10px;top:9px;width:112px;height:29px}.half-end-pill-thumb{height:21px}.rink-frame.half .view-badge{left:10px;top:44px}.rink-frame.whole .view-badge{left:10px;top:10px}}
 
+/* Version 6.0 — rink-first, inspectorless contextual controls. */
+:root{
+  --right-w:0px!important;
+  --v60-glass:rgba(5,20,35,.94);
+  --v60-glass-soft:rgba(10,34,55,.92);
+  --v60-border:rgba(255,255,255,.24);
+  --v60-white:#f8fbff;
+  --v60-blue:#0877c9;
+  --v60-blue-hi:#24a3ef;
+  --v60-red:#d7263d;
+}
+.workspace{grid-template-columns:var(--left-w) minmax(0,1fr)!important}
+.right-drawer,.drawer-edge-right,#rightDrawerHandle,.v60-compat-inspector{display:none!important;visibility:hidden!important;pointer-events:none!important}
+#changeActionAtPlayheadBtn,#actionRecordHud,.action-record-hud{display:none!important}
+.rink-frame{isolation:isolate}
+.v60-context-layer{position:absolute;inset:0;z-index:30;pointer-events:none;overflow:hidden;border-radius:inherit}
+.v60-context-layer [hidden],#v60TimelineContext[hidden]{display:none!important}
+.v60-context-menu,.v60-shot-panel,.v60-mode-cancel{pointer-events:auto}
+.v60-context-menu{
+  position:absolute;z-index:4;padding:5px;border:1px solid var(--v60-border);border-radius:17px;
+  background:linear-gradient(180deg,rgba(17,40,60,.97),var(--v60-glass));
+  color:var(--v60-white);box-shadow:0 12px 30px rgba(0,15,28,.36),0 2px 7px rgba(0,0,0,.25);
+  backdrop-filter:blur(15px) saturate(1.18);-webkit-backdrop-filter:blur(15px) saturate(1.18);
+  transform-origin:50% 100%;animation:v60PopoverIn .14s cubic-bezier(.2,.85,.25,1) both;white-space:nowrap
+}
+.v60-context-menu.below{transform-origin:50% 0}
+.v60-context-menu:after{content:"";position:absolute;left:50%;bottom:-7px;width:13px;height:13px;transform:translateX(-50%) rotate(45deg);background:var(--v60-glass);border-right:1px solid var(--v60-border);border-bottom:1px solid var(--v60-border)}
+.v60-context-menu.below:after{top:-7px;bottom:auto;border:0;border-left:1px solid var(--v60-border);border-top:1px solid var(--v60-border)}
+.v60-context-actions{display:flex;align-items:center;gap:4px;position:relative;z-index:1}
+.v60-float-button{
+  min-height:42px;border:0;border-radius:12px;padding:8px 15px;background:transparent;color:#edf7ff;
+  font-size:13px;font-weight:820;letter-spacing:.01em;cursor:pointer;transition:background .12s ease,transform .12s ease,box-shadow .12s ease
+}
+.v60-float-button:hover{background:rgba(255,255,255,.12)}
+.v60-float-button:active{transform:scale(.97)}
+.v60-float-button.primary{background:linear-gradient(180deg,var(--v60-blue-hi),var(--v60-blue));color:#fff;box-shadow:inset 0 1px rgba(255,255,255,.25),0 3px 9px rgba(0,92,160,.35)}
+.v60-float-button.primary:hover{background:linear-gradient(180deg,#36b0f4,#0b83d8)}
+.v60-float-button.secondary{color:#f4f8fb}
+.v60-float-button.shot{background:linear-gradient(180deg,#ef4055,#b81730);box-shadow:inset 0 1px rgba(255,255,255,.24),0 3px 9px rgba(155,8,33,.32)}
+.v60-float-button.shot:hover{background:linear-gradient(180deg,#fb5368,#cc1d37)}
+@keyframes v60PopoverIn{from{opacity:0;transform:translateY(5px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+.v60-mode-cancel{
+  position:absolute;top:10px;right:10px;z-index:6;min-height:38px;padding:6px 13px;border:1px solid rgba(255,255,255,.28);border-radius:999px;
+  background:rgba(4,19,32,.9);color:#fff;font-size:12px;font-weight:800;box-shadow:0 8px 22px rgba(0,0,0,.24);backdrop-filter:blur(12px);cursor:pointer
+}
+.v60-mode-cancel:hover{background:#132e43}
+.v60-shot-panel{
+  position:absolute;z-index:5;width:min(310px,calc(100% - 16px));padding:11px 12px 10px;border:1px solid var(--v60-border);border-radius:18px;
+  background:linear-gradient(180deg,rgba(17,40,60,.98),rgba(4,19,33,.96));color:#fff;box-shadow:0 15px 34px rgba(0,12,24,.4);
+  backdrop-filter:blur(16px) saturate(1.15);-webkit-backdrop-filter:blur(16px) saturate(1.15);animation:v60PopoverIn .14s ease-out both
+}
+.v60-shot-panel:after{content:"";position:absolute;left:50%;bottom:-7px;width:13px;height:13px;transform:translateX(-50%) rotate(45deg);background:rgba(4,19,33,.96);border-right:1px solid var(--v60-border);border-bottom:1px solid var(--v60-border)}
+.v60-shot-panel.below:after{top:-7px;bottom:auto;background:rgba(17,40,60,.98);border:0;border-left:1px solid var(--v60-border);border-top:1px solid var(--v60-border)}
+.v60-shot-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;font-size:11px;font-weight:900;letter-spacing:.1em;color:#cfe4f2}
+.v60-shot-heading output{font-size:13px;letter-spacing:0;color:#fff;font-variant-numeric:tabular-nums}
+.v60-shot-panel input[type=range]{width:100%;height:26px;margin:0;accent-color:#ef3048;cursor:pointer}
+.v60-shot-hint{margin:1px 0 8px;color:#abc4d4;font-size:10px;line-height:1.35}
+.v60-shot-actions{display:flex;justify-content:flex-end;gap:7px;position:relative;z-index:1}
+.v60-shot-actions button{min-height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.2);padding:6px 12px;background:rgba(255,255,255,.08);color:#fff;font-size:12px;font-weight:800;cursor:pointer}
+.v60-shot-actions .commit{background:linear-gradient(180deg,#ef4055,#b81730);border-color:#ff6a7c}
+
+.v60-pass-preview{fill:none;stroke:#111820;stroke-width:5.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:13 9;filter:drop-shadow(0 0 2px #fff) drop-shadow(0 1px 1px rgba(0,0,0,.35));animation:v60PassFlow .7s linear infinite;pointer-events:none}
+@keyframes v60PassFlow{to{stroke-dashoffset:-44}}
+.v60-open-target{pointer-events:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
+.v60-open-target circle{fill:rgba(255,255,255,.72);stroke:#101820;stroke-width:2.4;stroke-dasharray:5 4;animation:v60TargetSpin 1s linear infinite;transform-box:fill-box;transform-origin:center}
+.v60-open-target path{fill:none;stroke:#101820;stroke-width:2.5;stroke-linecap:round}
+@keyframes v60TargetSpin{to{transform:rotate(360deg)}}
+.v60-shot-preview{fill:none;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;filter:drop-shadow(0 0 2px rgba(255,255,255,.85))}
+.v60-shot-preview-black{stroke:#111820;stroke-width:8;stroke-dasharray:15 13;animation:v60ShotBlack var(--v60-shot-dash-speed,.55s) linear infinite}
+.v60-shot-preview-red{stroke:#ef263f;stroke-width:5;stroke-dasharray:15 13;stroke-dashoffset:14;animation:v60ShotRed var(--v60-shot-dash-speed,.55s) linear infinite}
+@keyframes v60ShotBlack{to{stroke-dashoffset:-56}}
+@keyframes v60ShotRed{to{stroke-dashoffset:-42}}
+.v60-shot-target{pointer-events:none;filter:drop-shadow(0 0 3px #fff)}
+.v60-shot-target circle:first-child{fill:rgba(239,38,63,.08);stroke:#ef263f;stroke-width:3;stroke-dasharray:6 4;animation:v60TargetSpin .75s linear infinite;transform-box:fill-box;transform-origin:center}
+.v60-shot-target circle:last-child{fill:#111820;stroke:#fff;stroke-width:1.5}
+
+#v60TimelineContext{display:flex;align-items:center;gap:6px;min-width:max-content;flex:1}
+.v60-timeline-chip{display:flex;align-items:center;gap:7px;min-height:36px;border:1px solid #6ca9c8;border-radius:999px;padding:4px 11px;background:rgba(31,112,153,.15);white-space:nowrap}
+.v60-timeline-chip strong{font-size:11px}.v60-timeline-chip span{font-size:10px;font-variant-numeric:tabular-nums;color:var(--muted)}
+.v60-timeline-number{display:flex;align-items:center;gap:4px;min-height:34px;padding:3px 7px;border:1px solid var(--line);border-radius:9px;background:color-mix(in srgb,var(--panel2) 82%,transparent);white-space:nowrap}
+.v60-timeline-number>span{font-size:9px;font-weight:850;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.v60-timeline-number input{width:58px;border:0;background:transparent;color:var(--text);font-size:11px;font-weight:800;font-variant-numeric:tabular-nums;padding:2px;outline:0}
+.v60-timeline-number em{font-size:9px;color:var(--muted);font-style:normal}
+.timeline-head>.timeline-duration{margin-left:auto}
+
+body.theme-light .v60-timeline-number{background:#fff;border-color:#9fb8ca}
+body.theme-light .v60-timeline-chip{background:#e6f3fb;border-color:#6da5c5}
+body.theme-light .v60-timeline-chip span,body.theme-light .v60-timeline-number>span,body.theme-light .v60-timeline-number em{color:#4f687b}
+body.theme-light .v60-timeline-number input{color:#0a2442}
+
+@media(max-width:900px){
+  .v60-float-button{min-height:40px;padding:7px 12px;font-size:12px}
+  .v60-shot-panel{width:min(286px,calc(100% - 12px));padding:9px 10px}
+  #v60TimelineContext{gap:4px}.v60-timeline-chip{padding:3px 8px}.v60-timeline-number{padding:2px 5px}
+}
+@media(max-width:520px){
+  .v60-context-menu{padding:4px;border-radius:15px}.v60-float-button{padding:7px 10px;font-size:11px}
+  .v60-mode-cancel{top:7px;right:7px;min-height:34px}
+}
+@media(prefers-reduced-motion:reduce){
+  .v60-context-menu,.v60-shot-panel{animation:none!important}
+  .v60-pass-preview,.v60-shot-preview,.v60-open-target circle,.v60-shot-target circle{animation:none!important}
+}
+
+/* Below desktop width the existing drawers become overlays, so the stage owns the only grid track. */
+@media(max-width:1180px){
+  .workspace{grid-template-columns:minmax(0,1fr)!important}
+}
+
 </style>
 </head>
 <body class="theme-light left-hidden right-hidden timeline-hidden">
 <header class="topbar">
-  <div class="brand"><img src="data:image/webp;base64,UklGRpojAABXRUJQVlA4TI0jAAAvV8KVAP/noG0kSdpK1fDH3N8dBQNp2+J0v4G0bUNvu8+/wrZtm+5d5o3PVViZaZ2rdgC+MI3hZ84PE9PiMPnC5IsvDdm+M1ukMTXuH5fpkCqQ9UF+Rq6QH18OV5McBQWFryNQUGCqczd2DSSFn5kkgAQWCwQJIEGM5XkQBEEWi0AADSXGYrFAlpbMSzECS4wFirHEPM8CWSzPg9o0yOfFtGxoo4nZL217jAUSWASQRWARCOCP//95SrL9e8+AqKGRW6i5pLgcbiGGaYudWhouHbgbmB5ulCtuaVrZ4YFHpIIIyDYz7wE0cwm1w33JHYVULMFdzANDREzyTDE1kHn9wczr/foszGfmcy1E9H8CoMb/Nf6v8X+N/2v8X+P/Gv/X+P//2Z9s0YkSMK86ulADBehDvWocVCvBfmJicorJZLboSGLtx8UnJCalmMw6kmj7MTFx8QmJKSaLfmS5/ajomNVxCUl6kn/b/3pFVMzq+MQUs37kn/YjIpdHxcQlJOtIPrO/JCJyRXRMfKJJP/Kp/cVLIr6OionTk3xi/9PP/vnv5dGxCTX+q/YsZn2jRUH/MtTSMxqWKOkFpmdsUOO/Gt8ZPb1qe3ka9RieLzRv2+mVHr37Bb0/4oPxkz+aNnPO/EVLIlfFxickpZjBsTklKSE+dlXkkkXz58ycPnXy+A9GvB/Ur3ePVzq1bf6Cp07A6NOig/+bQcPHhc2cHxFrATW0xEbMnxk2bnjQm/4dWvgY3Wy1m7UPeCf4w2mfLDeB2puWfzLtw+B3Ato3q+3OMjZp1+O90WHzo6B6XjU/bPR7r7Zv4uFOqt8mICh0+pJkcA6Tl8wIDQpo+7x7p26bwMHjZ0eBcxo1e/zgwLbebpcGHfuMmLrEDM6vZcnUEX06NnSLeLUOHDo1EtTRVvH0z7IH9+/dvVNcfPt20a3Cwl8LC28V3b5dXHzn7r37D8r+fFphU5rDyGnDAlt7uS+8O/T/cG4SKLTy8YN7twuuXTyXk5159Ie9O7dt3pBu5XK0pm/YvG3n3h+OZmafOXfxWsHtew8eVyrAbtK8cf07eLsbvDv0H7fADHKvfFhScC0vJ+vI3m0bU7mapm7ctvdIVk7etYKSB8/kZNe8aHz/Dt7uAUOL3iGfmEDGtkclv5zPOXFgx6ZUXh1aN+04cCLn/C93ymwysWv+JOSNlgaXnnengR9Fg1wr7hdeysncl5HOq+v0jL2ZORcL71fIwW70RwM7e7vkvLsEh6eALJ+W5P98ct93qdxZtG7ed+Kn/JKn0lVNCQ/u4u1S8+4SHJ4C0lf+8Wte9r7NVu6cWjfty867eb9Soqop4cFdvF1ixrZB05NAatuDm7kndq3lzvDanZm5Nx/YJKmaPGNgW6Nrq3GvCStB4oqSy9l71nNne/3u7Msl5VJUjZrQ+0UXlaHt4LkgbXnxhZM70rnznrbjxPnicgmqzhvS1uBqqt11TARIWVl6NXtnGteCaTuyr9yrpAOAZWO61nYdPRcwMRYkfFp4dv96ri2/2Z/z6xMyAIidGPCcK6hu94lxQF92/dTOVK5NU3eeuv6QCgDiJwY859rx8p8YB+SPrmdt4Vo3I+v6IyIAiJvo7+Wy8RsVBdR/3Tyz08q1sXXH6ZtPaQAgarSfK8Y3aCFQl+btT+faOn1/XikNACwa6Ota8fSfagba8l9PZXBtnvHjzXISAPNUf0+XSZPBEUD7JP/oOq7l1x699pgCAJYN8XWFGDpPTgHSR5d/SOfaP/3ApUcUAKawLgYXh1eveUD65Mr+VO4qTN1/+TEBAMzv7eXC8An6CijLrx9J567F9MPXywkAvgrycVE0Gh4HlMUn13FX5LoTt21iAPEjGrsgmoxcA4RluVu563LruYdiAAmjmrgYfEcngnjlzUNp3LWZdvBmpRBA0hhfF0KDEYkg/uT8Vu4K3ZL3WAggaVRDF0HdgatBvDR7HXeVrs0uFQJYPeg5F4Ah8F8gXnzYyl2p1oPFQgARrxm1XptwELb9uo+7XvfctIkAzPbTdPXHmEH4vzu4a3b7DZsImEN8tFtAJAgX7eau212FIgCRPTRaw0kgXLKfu3b3FYsATGmkxQKiQPRhppW7eq2ZD0Ugqofm8g4F0Ypz67greN25cgGAD+tpq1afgujNLdxVnFEgAote1lKvrQHBsmOcPrOA/vqlM3vSxNYWyDKV830F6B8w+wvQxzHbC9CHhVJ/KcBfpfmugPhG/tULOZm70gmuFMhxCwnnR8sEIKG3ZvIcAaL5G7iEP4O0Zec2iKwHWaZxvhvQuZg8QN/AnAC02G4QzSD5D0hbUZiZLvIHyHEnEd+QLwAwqpY2qj8VBB8f45JKBfDokELW21C/YG7jHmDO4bYKnRXKVgAA/HFAPTg/+qcATKuvhZrMB8HizVxZUHlKGfwB6i4i9S8cbEJcR1WkChUL3VAGVJ5REb75tgAs8NU+Ly0FvC0vjSsNbMeUUYh6anX0HxA8iLiLusdFv60UepqmDIBsFeFpuTYcRLTQOi2/Bnz5cS65HOBphiLyULDJ0QmRnxBPUPlCR0F8r1IqdqgI58fKcbCilbZpuRzwZTu5KkCBIrJwexxdFLnpaCOgzwpdJjinFLhjVRO+8yEOVrTSMk2XAf7377hKwC4l7MGdcFQi8sjRbtxRoQcEdxUDh1WFby7FQWQz7dJgMeDvbuSqcU0J3+J+dpBeIQKbHWTivhf5HghtGxVzW134hhIcfNFQq3jNAnzJeq4eT9MVwB+i8h3sBOGjDn5CPUsXOU0BmYqxfacufP0dHITX1ighgL+3gasI7FVCIarEQZZYroN8VCkXLSTJVwxkqwz/9jcchGqTnoB/sImrymklnEc9dnBZ7JaDO6hfRNaWkzyyKiZfbfimP3DQW4s0W417+j1Xxt4dVXcfyi0TuUhVdo84tUoWCjbY+03sidXen6ifRX4A2p1SndpSddvuzItPRUqJHt8j3iYHvu0JLq659jDOBLTtCFfIBu7w2xKBG1SnuJR7cbvsrH0mBlvtfAvoYyLniXKkOsYdb7onUG6lucKVfMiGgnCj5ngT8Oe54vjWSlyhEjbgjtvZDYTH7ezC7RApJbotH77dhoP16sPzcPC21qgfhStNVwFepDhehjpr5xTFeTvHUJVrBTYD9gnm2Xr58CKBzSqUfg8X7aMxggFduZurQS7uF0UUoa7ZuUZRbOcs6j4XzELlYeCwjH4WyFAhvqsSBcO0hU8s7ipXhRzcBUVcQBXbKaUoT6tyFVUgcgNzfw/qkoyyBTapEb+Mi2+gKQYBumKzOvyEy1ZENupRlXWVFLC9SjEqVyDtCeZaegXmDxllCXyrSpvKUTBES3hG4C5ydcjH7VTEPhSs55zvBdKTVcpQmQJ7AZvFizGwTT7ncOVWVeLncZG1NERXQNu2qkNaGarMqoiNuJ2c89M0Fznn6wC9S+Bn1Haehzoln7u4Uq5OGZUoeEVDhOJucXU4Dehcrgj+CHWMc55PU8I534GyrRMowTyx8iOom7I5APjrKsV/xY3TDobluCxV+CbnGapiM1nZPdLDjopQOZzz+4jy3xEV6ZwfRf3B8RsrMYWcb0KVp8tke5nAKaLH90jPyOoELsqoGVoC2rZJUf+9XrXg7jPA53Iy4hOOLqKucr7Bhii+ioBdnOegbgocB+xZzvn/YmC/DFK3/ljwDAS3EhGfl9VGGwpaa4ZeuFKuKOK76Ur5EXWb8/2APJ+Nyeb8MipP4BpqP+f8GipPkqePqlaA+B2uVvwe7g3NMByXrz6lm7hS9qHKOM/BZO7CXOG8CHUSZy3DVH7DOc9G3ZOEPlO9ruFGaoZJuLOqc2MDV8wmlG0dv4HZll6BuMf5A9Ru3A7A/sY559tRsFkBpanqlYObohnCcSdU5slhLigv/icGtvMHiCdWXoKoXLvWhlqPy0FdrJL6BHVSfrZ9XL0ycXM0wzzcEZWBhznrFHQbdWQjIIs4v4iAPd8D9iHHF6Eyq/BC1HX55XIVO4RboBkW4A6pDUDZQeVcQp05iMnl/CTm9GFUIW5dBSrDzlnU41S5/WJVsx9wizTDXNwx9QFbjmJOoS7/hDnK+X8w+WdQF3CHAFvG7e5HwR6ZXU3janYEN08zTMf9qEIAZ5SyH1VUgMngPPUvxP1LqGzcRdQNe+sqUT/J6mEmF1SdbNwMzfAhLleVKvcoZBPqQRniEeec30bYSlB7cfdRZ+zxu6g7MirJXstV7hxuvGYIwhWqEvxmVQZ/jEH/WiUPIbgRtQXQexxcQFVukM2Ts+u42t3EDdIM3XCPUxWV+5Pdc5dLKgXgENHPW0i/wRQT/VzlGNEjjv4RVZHu4DgKjskG4OF+aa5vId0gK+sjnL9m8DGjYJeiNnDHGbcECohOcakvEx2qsoWoCFeAKuYOv8NdoTuz/dC1ShxUHpHkClf8TkBbGmgGNgeXqxI8/S6uYp0yThNtqmJ9THMRlf4UVZTluBz10Ep2jHP+QwUOnm5RtXO4eUw7BOEepKkE34+D/co4QPOQ2y2kOYXaB3LcLgk/JQBFVhVL/QM3SEM0t6DgiFpYH+POKGMzzQ1752j2o3JlcUaatPsCcELFDgHa0kJDsOm4ErXgd3CXlGF9QpJj7zDNJtRvsrglDT8p8nCtehXjZjAt0Q0Hh9SiCHdDGfwOyQF7m0kec+wmmywq1kqT/kgAclTrB8D7awrDfNzvaSpxD3dLIVcobBvs8TKKYlQmyPOgNDxX5NFalUorxS0wagrWDQdn1WHdM1yRQs5Q3OcOCyguo/JlckGirTYByFSpHMD7M23BpuMqtqtCFuALFPIDRb6jsxSnMdZHMrkvEb8lUqRO35fjZhq0RoskFJSuVYFNjwTyFfIdxWlHBygOYHaBXDMkOiZiy1CjtfcAndyKaQ02EAf5VqVZf7gPgudoLh0k3omwPiXY62gDxWbMWdlkS5T+SAB+pio8SLxPHtcAP5hpD89wHOQo5Nplu/mFj0H4BA35LwheIla5zhH/Q+ypFVMsmxsS8VyRB6lE5PdlcQbwsz01CPONwtkylSHlVqVcFSvlyOtiJRy5/plsnqZJtMUmAAdU57gNF92UaRHW1YSCZ4fV5SFXyhmxq5gzYlcxR0C++yTit0Suq82hZ4A2d2PahL2Dg4pDqpKnmINiP2L2iZ3BXMbdOCxagTsn1VGRig3qcrAC8AOYVmEjcPDsmIrYtismQ2wXZl2l0EHMA9xxLnoHd1eq9EcCcEpVjlYAfhTTLoYPcVB5Rj3+yxVjLRd5lo7hpUIZiG2AzxA6j7NtlIjnivymJqcqAT/eqGGYx3gcwMU0laj4Xjn8rshdjr4qUm5FnMY94sLHcJAp1RabAOxUjbQLIDjBk2kZ5jFOAIo2qsNZrqBrIpdwP4rc5chfcQVi3wnkS8VviVxQi423QHC8J9M2zDhSAB7uUYP/piopRyQLt0skH7G2HJcjxstwj6xSHRV5nK4Oux+A4Ggj0zqMDTDj4FlOquJuruVKOiSyA5f+TCAHcQDw+wlu4GCnVOmPBOCYGlhzngHeEsTU2PlgAfE4gKIMZVWcS+OK2iJQnobjdwWOIPJwld8QnBHIkYrnihSqwOYiEFzTg2kj9vISAXiaZVXMs5KzmzheAanluGIueElgG6IUd48T7hW4LVmGTaBys9KsWU9AcGkbppXYCx8LANzeJjvbX7//ej5rz1ourAB+F3de5CSuIs3RZsBfplj7DPdsvVS8UADOKmxrEYhOa8C0EzO+lyIAFbnrqFyu685VgGDKQCPTUoz5LRYAKMu0uoCsmQ9B9PN2TL2dFeY9xiIAcGe3y2dXMYhaQuox7cVY5yUiYLvxvUvn+19sIPplF6bqTgx7bliKAEDltQyXTca1ShA1DX+OaTXGWs8UAXh2eatLZsvlChAOb8PU3rlhhsBlIgCV13e6XHbkV4LwV70MTNsx5j1kjQgAFO63ulCs+361gXDC+96sGnR6GPMdaxICKM1e5yJZm3UPxE1jfVm16AQx1mKiWQjgSd4WF0hG3mMQt0xqyapJp4ixVhPNQgCVhcfSXRrpRwsrQdw8sTWrNp0kxlpOMAsBwJ8Xdrostp//EwjNE1uxatRpYqxFaKIYANw9tckFsenUXaBMHNuSVatOFGMNB68kAKi8lfWtS2H9ycJKoFw5pBGrZp0qxur2WUgAABU3jn3jIvjm2I0KIF30dl1W7TpZjBk6T0wmAICKm1kbNd+GkwXlQJoyuYuRVcNOF2Os0cAvKQCgsuhUhobLOFVUCbRLBzVm1bMzxphHtylJFFV/z9ufrsHS9+eVAnHylG4erLp2zhhjPn1n0wDA0xtZGZoqI+vGU6Ce068Bq8adNsZYi/eX0lT948rxjZpo4/HLfwB5RHALVr07c4wZO4xcRgQAtt/yjmzUNBuP5P1mA/LIUR2MrLp37hhjxg6jIons/n7l5FZNsuXkld9tQB85uqOROYFOH2PM2GHE52RVy27k7FunIdbty7lRBlJ+MaKDkTmHWqBqq6BwM1nVyt8uZ/0nzelL+0/WpbuVIKU5PKgVcx61AmOs4RuTVtHZLS+5lL17rZO2dnf2xTvlIG3MlDcbMadSQzDGPNsPDjdJYLeyND/nUIbVibJmHMrJv/cMJDaFD27vyZxNbVH1+e4hiyWx/1fJtTMHt6Q6OakZP5y5cucvkH5xSIAPc0a1R9UmgSGLJbJfce+Xcyd2f+uEfLv7xLnr9ypAjotDApswZ1WbVG0SGLLAIpXDx3ev52Yf2JbuBKRvPZCde73kT5CnZWFI4IvMmdUuVZ/vOmTaahk4rHx453re6aO7N6VWO9ZNu46ezrte/LASZBs7fUjX55mzq22qerzcJ3ReiiyQzx6UFFz++ccjuzO+UbVvMnYfzv75ckHJg2cg65R5oX1e9mDOsPaxW8fv7dB5KbJBVzz87db1iz+dyjy0b8d3660Ks67/bse+Q5mnfrp4/dZvDytAgSnzxvZrV5c5zRrJbl2/N0bNiJaZqO3pg9I7RTevX7mQe/b0j1knjh89dGDfnl07d+7Y/v22bVu3bN227fvtO3bu3LV734FDR4+fyPrx9NncC1eu3yy6U/rgqQ2UvGrGqDf96jLnWkvZNfh2GzhxfqJCqufE+RMHvtLUwJxwzWXfo3m3ASGzop2cVeGhA7o192BOu0Zz2LBdz8HjZi13OpaHjx/cs11D5uxrO4f12nQfMHLy3JXVXtTcySMHdG9Tj2lEl4Bj75Zd3hoc8tHc5eZqxbJ87kchQ97q0tKbaUyXArJWEz//PoNGjp82b1mSSiUtmzdt/MhBffz9mtRiWtU1ga/XzK9Ljz7vBY+ZMDV8wdKV8RZFWOJXLl0QPnXCmOD3+vTo4tesHtPCrg9xj3qNm7du17mrf49effoNGDgkeOjwESNHjf4gJHRsaMgHo0eNHDF8aPCQgQP69enVw79b53atmzeu58G0uOvFdVrjvxpa1dE11FHSFwPe1TMO+ExBeswa/9X4r8Z/Nf6r8d///0zMjNH9urdv2bihT8PGLfz8+46YulwHkhjWr5WREfoGhq6QxbRghSbJxRSshjGIYcG0q8gmBtOGC8QEKzlO48zqXZ/Re3Yet0a6/2EKjZVLIlPDJYjnGO3nZF0YbbDAl0zJkVrGPLENk/qFgSv0GNPbMDnWG7xGbxEVaGAybTZNXzG9MZOvoW+ijmK4J5O1X4RewvQ2k7vvAn2EKZDJv8F8PYSlN1Niw0U6iEFMmc1W6B4mGRTC/paic/jMmyl2oL7B1I4p1yNc1zCCKbllko5hmbei2FAdQ2+m7PordQsLPRTGBugWApnSvaNk8lwTyeM0Trv2sozSFBGeUtR/NXT20q8/Dw8J9JGCBcvkdVBLpy0JqvdqKYjR1x8eC44TQppI4GvSJaQ0ousUCfjY3nRsWvWSEkjcmqh5IPEKV9hHjLy3CYRHGMh6Vi/kg4neAsldWK+RBZiBcChZ/SQdQvLzVK3igPRVKjZVhzCTERtnA210I6p3dQgDqXoBdQhVKx1CByLjArKkJkTGaN1BUh2ivwH9ICI2VXcwlxGHSLCY6u+6g1AiQ6QE0IIoQGv07Evt6zp5l6glSNmXqLXWkLtLoivRm5KMJ6pjdn30CJR+uqZ4iWiUJAuI2Fcy8J8vZYwWkuMYLWGpQzRTElMtotkykHay22kFI46QBJoRTdYZfEJUyyRNJ6IQncEMIl+QNoAoWGcwmai1RH2IgnQG44g6SvQeUT+dwRiiVyQaRPSWzmAkUXeJhhC9rjMYTtRDomCiXjqDYUSBEg0hel1nMIKoh0SDiN7SGYwm6i5REFFfnUEIUTeJ+hL11xn8g6iDRK8RDdYZTCVqJZE/0QidQThRY4naEYW6Ptq0lX6SllhE5JEsTVOiMNdHElTv1U68gYZ9IYnZi2iuDF5dKWWS0zFoFHULlwm8QDRNkiWM+CsZvA4qrzKfA3UX10kbomGSfExU26w36EEUKMlQopagNxhC5CvJK0T+uoPJRGyxBJYGRO/pDr6kCpYgnBFP1B1AY6LWEgyg+lx/EEDEZpAlNCRqaNEfjKbqTBbCiANAf/AlFZtIFNOIaowOAVpRNVhK05MRG77UIwymYm1WUQxj1G1Aj/CFgYr5fS021ED2d10CdCBjjacJrAhg5J4R+oRJdIy9MtPiKGJQfUb/CrhExo6TZ4yWMDWTgLHGPYeOmzJh1P+0MTIpp7lG5PqJloAxksizLegVkpsrbYpuASYorAPoFywdFWWco2OABV5K6gd6BghWULM4fYOpg2K8ZoO+ASIaKWUU6B0gvLYy+oL+ASZ7KqG7SQ8BEzzlF5AMuggIqyu3PibQScCcprLyHAH0+gOI7i6jZuGgpwCY1FgmHv1iQGcB8cE+MjB0mwfS6hMA4sa0lMjr1TkgtV4BAOa+19JAVavTyJUgvY4BAJaNH9CpsUGgUccBU6LBXetE2F2zcMakkFHDh44YM37a/Bhw6zob7uQa/9X4r8Z//794lkWTBvfu0rZZIx+fRk1f7tRz4Li5ycqLnhEysGcXv+ZNGj7v07DJSy938H9ryLjZsW6DBcGSDx0+cuzkWUtTlPTFyG4+jLB2u4EzzcpZMbZXUwOjNbzUe3yUW+AfTK5erV/7YJEiYkb7GRh9o37zFLFm7N88mLSe3aaY3Sd2Ww7+l9wi+nszqTuGyW7VIB8mx1Zh7hXGPAMXyikuqC6TY7tZsjKPfp7JtVuEe4Uxz36xsgl7kcnU0HuVfBa0YzL2CXOzMNZ0pjwS3mIy9p0hl9DnmKyNw90tzHOYHCLaMll7DpdFyhtM9oPcLYz1MUs2vwmTe1+zdKu7MAUOd7uwnmaJ5vow+fc2SxXbjinRGOZ2Yf2kWejDlNhHoviOTJk+S90ubLQUkU2ZModIYglgSu1scbt4zaFLbscUagyTYhBT7oduF9Y8jqw/U+zzEXTTDApqFOt2YQOophuVwzpZqKIaMyW/736ptZAmvilTcijVa0zRPnFuF9aNJogp2ieaZqZBWWyk+4WFUyytoyzWn8T8MlN4CzdMN4reTOG1l1FMZBLX923e0EMaNsv9YlgotqSW0ti7BOaWUvj0nbocACBp7tDWUrztRqjdtOqLL3hJxfqJvcOkfHnglIXLli0MG9zOIEW9GLEpjL7+8HhAWsKa0TU0uw/+BvYtkTOCOxql8EkUWV1fgk6zAPlpTwMdGyXWma79MhCMeYWMhbsf7P6rfx06NkUklJHXDgHBmU3o2ggtNJC9mgzCpu5kA90UAIva0QWKtCerHw7Cy1uTsU9Eghh1dxMQrnmZqp3bAhK6k/mYcMuMVF4zgXBlc7LBApamVK3igHSeB4VX274T3BeQ1IGKheNGMeoxQLrAm+plgXBG7DkXiF8XMDR/dUR4Ijjd2goivKn+jutG1RmIh1MZInEDqfoC9UKDI58ug8JWgHOusWAIVVdUkjeRcQGV6SUiNg7XhsgrggzaMca8/PqOW2QB511rRXsTNUSFM2J/IA+l6oOKMhD1BPrQwJHhieDkay3oScQiMMOoptIl1CdqjQpjxNMk0ISaK4wqDBNA1DCFDt4gqpWICSJqaHIrxXoSDcG8RNQLJJxCxOZiOhP1ALcStCXqjVhjJPpQihhPovGYRkQhbqY+RB0Q8xnx51JAa6JBiChGPM/NNIroRcQkonoWSV4jeg0xi8gr2c00nciY7GgEUTuQdChRJ8Q/iFqBm2kREYt01J8oUJqJRC0QwUTd3E1xVPMdBRIFSTOHyAfxP0R93U3gTTTDURei0dJ8QWQ0O+pBNERoYUfpu7k5mhBNcuRHNEGaGCK22lEXotFCc5j09d0cLYnGOWpJNFUai5HoK0d+RBPcTn5EoY58iWZJA15EXzhqRTTF7dSOaIyjxkRzJPImWuToJaKP3U4diUY4akg0T6L6RAsdNSWa5nbqJNULRPMl8iZa5MjXTdaBaKSjRkRzJfIiWuKoOdHHbqd2RKMd+RLNkchIFOGoBdEUt1NbohBHzYlmSRPPiFc4ak00we3Ummico9ZEH0kTSZXoqAPRGLdTc6JJjjoSjZPmU6La4PgVomC3kw/RVEf+RCOlmUnUENGLaIC7yWQkmu3odaIB0kwgaoUIIgpwN61gxIsdDSIKkGYYUWfEaCI/d9N8qmhHIURtpOlD9BoijKiBuymMqA44nkZUO0WSDkQDEZ8Ssa/cTMOImiGWELFPpLD4EI1DpHgRfexm6knUEWHxJhotxUJGHI6AVkRBIuYEwWFul2ZEbyLAj6i7FCFEhlWYnkTtRIRHuls+Z8RDMX2IvOMkeIWoGWBHE3mucCsFU03FjCNi/6CLrUMUgJpLxEa5k0zNqCIxn1P50Y1mxMNQJh+iNu6kCYzYF9C+RGw6VcpLVHNR0J2ITXMfxTej6ol7m6pFEtFIRuxjxoVQtTW5jfow6rG4MCrWj2ZhPaoegF/hScRGuIuGMmqPlbjE56nYBxQrWjDqiQLQicprFt2cFm6U1X0YeScQ7ENmHC0W0ZpR140TCaViDeYRrQnyZO4S05wBLzD6sSLhZIz1ihYIa8jIXwPR2HpUzGc6SVgzRus+eGlM1dEj338v0M+bSVk/TgT86FiD4JWOzNO6MAlnCcFbZMwjKFZoentG7T6Q77sgPEECxjzb9/9g4uSxg7v7MCnbgPgCIxljjd7/GhMxsjWjd7vUWiqW0lwKmU4iAH8JGDO27Td64sdhE4a+0dLApHS79AbCCUprZaaYY5BCtu4Wry8pzG0U9hGQ9nC7vQek4UZFdQHaz2u72ZrG08CbSqq7mAiGuNcM04F4la+ChgN1UivFvehWGQDkMzwU09VMBvPrKKzNl+6UDsl08Hel+K4ECUOU1WsNuFGaR4GElh7KqD8fJH1HQXXHgrOt7V5cApImdFZCnekgrclfMa0/AXdK089B4rgO8qs7HaRO9leGsX8iuFPaRoDka/zl1mAWSJ/cSwkvzQRnXMP1XgMyNA0wyKrVFyDLoR5y8wpKAHdK48kg07CGMuoTDzKd2VReXRaBk67RXhgSB7KN6m2QSfOpIN+Yvh7yaTMNnHYtVqfrh/Eg67ld5fBCcALIen43gzzaf2QBd4nHy30/WgPyn/dGXYmaD4sF2c/v7S3Z82/OBadeKxm8fF7q9Maw6bGg1Ljx/vXIGveZbgFFxo3rXl8C3zfDEsHJ1wjVY0r48MDWzwl4tQoYOdcMCk6eNTygZW0Rz2ZdBvxjKWhAF4pdS+ScqePHjBg6bFTo5PAlJlBF879mh4WOHjF02Mgx48PmLE0GrehqcaXW+K/GfzX++/9VGP2xLtRI8Pb7f7c7ePCgoKD3Bgx4V6f5znwxxwmx0cv//c/PPv1E5/n/45IYFxP1dcSSxZ/qPBcvifg6KiYuERUfE70iMmLJZzrPJRGRK6Jj4lHJCXExUcsjI/6p84yIXB4VE5eQbEakJMavjola8fW/dZ5fr4iKWR2fmIIxJSXErY6Jjlqu84yKjlkdl5BksmBSEhPi42JionWeMTFx8QmJKSizKSUpMSE+LlbnGRefkJiUYjID0mI2mVKSExMTdJ6JickpJpPZggGwWMxmkw7UbLZYoMb/Nf6v8X+N/2v8X+P/Gv/X+L9GlQA=" alt="BOTD"><div class="brand-copy"><strong>BOTD Hockey Coaching Aid</strong><span>Single Timeline Director · Version 5.10</span></div></div>
+  <div class="brand"><img src="data:image/webp;base64,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" alt="BOTD"><div class="brand-copy"><strong>BOTD Hockey Coaching Aid</strong><span>Single Timeline Director · Version 6.0</span></div></div>
   <div class="topbar-spacer"></div><div class="top-status" id="topStatus">Empty board · build movement first, then direct the puck.</div>
   <button class="btn small" id="newBoardBtn">New</button><button class="btn small" id="savePlayTopBtn">Save play</button>
   <button class="icon-btn" id="focusBtn" title="Full-screen focus">⛶</button>
@@ -394,7 +505,7 @@ body.theme-light .timeline-branchbar .puck-route-cluster select{background:#fff;
     </section>
     <div class="rink-shell"><div class="rink-frame whole" id="rinkFrame">
       <button class="half-end-pill" id="halfEndPill" type="button" hidden data-side="right" aria-label="Half Ice end: Right" title="Choose the visible Half Ice end"><span class="half-end-pill-thumb" aria-hidden="true"></span><span class="half-end-pill-label half-end-pill-left" data-half-pill-side="left">LEFT</span><span class="half-end-pill-label half-end-pill-right" data-half-pill-side="right">RIGHT</span></button><button class="view-badge" id="viewBadge" type="button" aria-label="Switch to Half Ice - Right End" title="Switch to Half Ice - Right End">FULL ICE</button><div class="offside-light" id="offsideLight" title="Onside" aria-label="Onside"></div>
-      <div class="live-hud" id="liveHud"><strong>LIVE PUCK DIRECTOR</strong><span>Tap a player to pass or take possession · tap open ice to shoot</span></div>
+      <div class="live-hud" id="liveHud"><strong>LIVE PUCK DIRECTOR</strong><span>Pass: tap a player or open ice</span></div>
       <div class="goal-banner" id="goalBanner"><div>GOAL!</div></div><div class="action-record-hud" id="actionRecordHud" hidden><strong id="actionRecordHudTitle">TRACE NEW ACTION</strong><span id="actionRecordHudDetail"></span><button id="cancelActionRecordBtn" type="button">Cancel</button></div>
       <svg class="rink-svg" id="rinkSvg" viewBox="0 0 1000 600" role="application" aria-label="Interactive hockey coaching board">
         <defs>
@@ -432,13 +543,22 @@ body.theme-light .timeline-branchbar .puck-route-cluster select{background:#fff;
         </g>
         <g id="drawingLayer"></g><g id="routeLayer"></g><g id="previewLayer"></g><g id="objectLayer"></g><g id="puckLayer"></g><g id="targetLayer"></g>
       </svg>
+      <div class="v60-context-layer" id="v60ContextLayer" aria-live="polite">
+        <div class="v60-context-menu" id="v60ContextMenu" hidden></div>
+        <div class="v60-shot-panel" id="v60ShotPanel" hidden>
+          <div class="v60-shot-heading"><span>SHOT POWER</span><output for="v60ShotPower">70%</output></div>
+          <input id="v60ShotPower" type="range" min="1" max="10" step="1" value="7" aria-label="Shot power">
+          <p class="v60-shot-hint">Aim on the ice. Shots that reach the boards continue along the wall.</p>
+          <div class="v60-shot-actions"><button data-v60-action="cancel" type="button">Cancel</button><button class="commit" data-v60-action="commit-shot" type="button">Shoot</button></div>
+        </div>
+        <button class="v60-mode-cancel" id="v60CancelAction" data-v60-action="cancel" type="button" hidden>Cancel</button>
+      </div>
     </div></div>
   </main>
 
   <button class="drawer-edge-handle drawer-edge-left" id="leftDrawerHandle" type="button" aria-label="Collapse setup drawer" title="Collapse setup drawer">‹</button>
 
-  <aside class="right-drawer closed" id="rightDrawer"><div class="drawer-head"><div><h2 id="inspectorTitle">Inspector</h2><p id="inspectorSubtitle">Select a player, movement clip, puck, or puck event</p></div></div><div class="right-content" id="inspectorContent"><div class="inspector-empty">Select a player to record or trim movement. Select the puck to assign possession and direct passes or shots. Select a timeline clip or puck event to edit it precisely.</div></div></aside>
-  <button class="drawer-edge-handle drawer-edge-right" id="rightDrawerHandle" type="button" aria-label="Open inspector drawer" title="Open inspector drawer">‹</button>
+  <aside class="right-drawer closed v60-compat-inspector" id="rightDrawer" hidden aria-hidden="true"><div class="drawer-head"><div><h2 id="inspectorTitle">Inspector</h2><p id="inspectorSubtitle">Select a player, movement clip, puck, or puck event</p></div></div><div class="right-content" id="inspectorContent"><div class="inspector-empty">Select a player to record or trim movement. Select the puck to assign possession and direct passes or shots. Select a timeline clip or puck event to edit it precisely.</div></div></aside>
 </div>
 
 <div class="command-bar" id="commandBar">
@@ -456,6 +576,7 @@ body.theme-light .timeline-branchbar .puck-route-cluster select{background:#fff;
 <section class="timeline-dock" id="timelineDock" aria-label="Single continuous timeline">
   <div class="timeline-head">
     <span class="timeline-title">SINGLE TIMELINE</span>
+    <div class="v60-timeline-context" id="v60TimelineContext" hidden></div>
     <button class="action-change-pill" id="changeActionAtPlayheadBtn" type="button" hidden title="Move the selected player from the exact playhead frame"><span aria-hidden="true">✎</span><span class="action-context-label">Move</span><span class="action-context-name"></span><span class="action-context-time">0:00.0</span></button>
     <div class="timeline-duration"><span>Length</span><input id="timelineLength" type="number" min="4" max="60" step="1" value="12"><span>s</span></div>
   </div>
@@ -473,9 +594,11 @@ body.theme-light .timeline-branchbar .puck-route-cluster select{background:#fff;
 <dialog id="confirmDialog"><div class="dialog-head"><h2 id="confirmTitle">Confirm</h2><p id="confirmText"></p></div><div class="dialog-actions"><button class="btn" id="confirmCancel">Cancel</button><button class="btn danger" id="confirmOkay">Confirm</button></div></dialog>
 <script>
 "use strict";
-const APP_VERSION="5.10";
-const SESSION_KEY="botdHockeyCoachingAid.session.v5_10";
-const PLAYBOOK_KEY="botdHockeyCoachingAid.playbook.v5_10";
+const APP_VERSION="6.0";
+const SESSION_KEY="botdHockeyCoachingAid.session.v6_0";
+const PLAYBOOK_KEY="botdHockeyCoachingAid.playbook.v6_0";
+const LEGACY_SESSION_KEY_V510="botdHockeyCoachingAid.session.v5_10";
+const LEGACY_PLAYBOOK_KEY_V510="botdHockeyCoachingAid.playbook.v5_10";
 const LEGACY_SESSION_KEY_V59="botdHockeyCoachingAid.session.v5_9";
 const LEGACY_PLAYBOOK_KEY_V59="botdHockeyCoachingAid.playbook.v5_9";
 const LEGACY_SESSION_KEY_V58="botdHockeyCoachingAid.session.v5_8";
@@ -511,12 +634,12 @@ const fmtTime=s=>{s=Math.max(0,Number(s)||0);const m=Math.floor(s/60);return `${
 const escapeHtml=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 const BASE_TEXT={
- appSubtitle:"Single Timeline Director · Version 5.10",newBoard:"New",savePlay:"Save play",boardSetup:"Board Setup",boardSetupSub:"Teams, roster, settings, and playbook",teams:"TEAMS",roster:"ROSTER",settings:"SETTINGS",playbook:"PLAYBOOK",teamsRink:"Teams & Rink",teamsHelp:"Edit team identities and colors. Players inherit their team colors unless an individual override is set.",rosterHelp:"Bench order follows forward lines, defense pairs, goalies, then staff. Select a bench token to place it on the ice.",addPlayer:"+ Add player",searchRoster:"Search roster",appearanceLanguage:"Appearance & Language",appearanceHelp:"Use a large, USA Hockey-inspired light workspace or a low-glare dark workspace. Language changes are stored on this device.",light:"Light",dark:"Dark",language:"Language",iceView:"Ice View",wholeIce:"Whole Ice",halfIce:"Half Ice",tokenDisplay:"Token Display",names:"Names",numbers:"Numbers",positions:"Positions",leadership:"Leadership",offsideLight:"Offside light",centerLogo:"Center-Ice Logo",centerLogoHelp:"Half Ice rotates and crops the image to the visible half of center ice.",opacity:"Opacity",useBotdDefault:"Use BOTD default",timeline:"Timeline",showRecordedRoutes:"Show recorded routes",routeDisplay:"Route display",aheadErase:"Ahead; erase behind",showAll:"Show all",hidden:"Hidden",defaultDuration:"Default duration (seconds)",playbookName:"Playbook name",saveCurrent:"Save current",exportJson:"Export JSON",importJson:"Import JSON",templates:"New v5 Timeline Templates",myPlays:"My Plays",inspector:"Inspector",inspectorPrompt:"Select a player, puck, or timeline action",emptyInspector:"Players own movement tracks. The puck owns possession, passes, and shots. Record skating first, then select the puck and direct it on the same timeline.",playerMovement:"Player Movement",recordTrimMovement:"Record and trim skating only",movementTrack:"Movement Track",movementHelp:"Record a route beginning at the current playhead. Multiple players can overlap on the same continuous timeline.",recordPath:"Record path at playhead",cancelRecording:"Cancel recording",previousClip:"Previous clip",nextClip:"Next clip",movementClips:"Movement Clips",noMovement:"No movement clips yet. The player remains at the setup position.",presentationHighlight:"Presentation Highlight",glowBlinkPlayer:"Glow / blink player",glowBlinkPuck:"Glow / blink puck",glowColor:"Glow color",brightness:"Brightness",blink:"Blink",blinkRate:"Blink rate",returnBench:"Return to bench",movementClip:"Movement Clip",trimClip:"Trim start and skating duration",clipTiming:"Clip Timing",startTimeline:"Start on timeline",skatingDuration:"Skating duration",previewClip:"Preview clip",selectPlayer:"Select player",deleteClip:"Delete clip",puckDirector:"Puck Director",puckDirectorSub:"Possession, passes, shots, and alternate takes",puck:"PUCK",possessedBy:"Possessed by {name}",inFlight:"In flight",loose:"Loose",activePuckTake:"Active Puck Route",copy:"Copy",delete:"Delete",stopLive:"Stop live directing",directLive:"Direct live from playhead",newTakeDirect:"New route + direct from start",liveHelp:"While the skating timeline plays, tap a player to pass or establish possession. Tap open ice to create a shot. Player movement remains unchanged across takes.",addAt:"Add at {time}",givePossession:"Give possession to",choosePlayer:"Choose an on-ice player",setPossession:"Set possession",passTap:"Pass · tap player",shootTap:"Shoot · tap ice",drop:"Drop",passDefaults:"Pass Defaults",passSpeed:"Pass Speed",sauce:"Sauce",ignoreDefense:"Ignore defense",shotDefaults:"Shot Defaults",power:"Power",clearPuckRoute:"Clear active puck route",puckEvent:"Puck Event",eventSub:"Drag the chip or trim its time here",timelinePosition:"Timeline Position",eventTime:"Event time",setPlayhead:"Set playhead here",possessionTarget:"Possession Target",pass:"Pass",receiver:"Receiver",shot:"Shot",target:"Target",retargetShot:"Retarget shot",deleteEvent:"Delete event",singleTimeline:"SINGLE TIMELINE",timeDrag:"TIME · DRAG TO SCRUB",length:"Length",puckTake:"+ Puck route",routes:"Routes",ahead:"Ahead",all:"All",undo:"Undo",redo:"Redo",clearDrawing:"Clear telestration",onBench:"{count} on bench",placeOnIce:"Place {name} on ice",move:"MOVE",possessionAbbr:"POS",invalid:"Invalid",release:"Release",arrival:"arrival",openSetup:"Open setup drawer",closeSetup:"Collapse setup drawer",openInspector:"Open inspector drawer",closeInspector:"Collapse inspector drawer",showTimeline:"Show timeline",hideTimeline:"Minimize timeline",theme:"Theme",canadianNote:"Canadian English adds a little ‘eh’ and places a maple leaf at center ice.",usEnglish:"US English",canadianEnglish:"Canadian English",swedish:"Swedish",finnish:"Finnish",russian:"Russian",wholeBadge:"FULL ICE",halfBadge:"HALF ICE",onside:"Onside",offsideWarning:"Delayed offside warning: attacker must tag up",offsideViolation:"Offside: puck entered before attackers tagged up",nothingUndo:"Nothing to undo.",nothingRedo:"Nothing to redo."
+ appSubtitle:"Single Timeline Director · Version 6.0",newBoard:"New",savePlay:"Save play",boardSetup:"Board Setup",boardSetupSub:"Teams, roster, settings, and playbook",teams:"TEAMS",roster:"ROSTER",settings:"SETTINGS",playbook:"PLAYBOOK",teamsRink:"Teams & Rink",teamsHelp:"Edit team identities and colors. Players inherit their team colors unless an individual override is set.",rosterHelp:"Bench order follows forward lines, defense pairs, goalies, then staff. Select a bench token to place it on the ice.",addPlayer:"+ Add player",searchRoster:"Search roster",appearanceLanguage:"Appearance & Language",appearanceHelp:"Use a large, USA Hockey-inspired light workspace or a low-glare dark workspace. Language changes are stored on this device.",light:"Light",dark:"Dark",language:"Language",iceView:"Ice View",wholeIce:"Whole Ice",halfIce:"Half Ice",tokenDisplay:"Token Display",names:"Names",numbers:"Numbers",positions:"Positions",leadership:"Leadership",offsideLight:"Offside light",centerLogo:"Center-Ice Logo",centerLogoHelp:"Half Ice rotates and crops the image to the visible half of center ice.",opacity:"Opacity",useBotdDefault:"Use BOTD default",timeline:"Timeline",showRecordedRoutes:"Show recorded routes",routeDisplay:"Route display",aheadErase:"Ahead; erase behind",showAll:"Show all",hidden:"Hidden",defaultDuration:"Default duration (seconds)",playbookName:"Playbook name",saveCurrent:"Save current",exportJson:"Export JSON",importJson:"Import JSON",templates:"New v5 Timeline Templates",myPlays:"My Plays",inspector:"Inspector",inspectorPrompt:"Select a player, puck, or timeline action",emptyInspector:"Players own movement tracks. The puck owns possession, passes, and shots. Record skating first, then select the puck and direct it on the same timeline.",playerMovement:"Player Movement",recordTrimMovement:"Record and trim skating only",movementTrack:"Movement Track",movementHelp:"Record a route beginning at the current playhead. Multiple players can overlap on the same continuous timeline.",recordPath:"Record path at playhead",cancelRecording:"Cancel recording",previousClip:"Previous clip",nextClip:"Next clip",movementClips:"Movement Clips",noMovement:"No movement clips yet. The player remains at the setup position.",presentationHighlight:"Presentation Highlight",glowBlinkPlayer:"Glow / blink player",glowBlinkPuck:"Glow / blink puck",glowColor:"Glow color",brightness:"Brightness",blink:"Blink",blinkRate:"Blink rate",returnBench:"Return to bench",movementClip:"Movement Clip",trimClip:"Trim start and skating duration",clipTiming:"Clip Timing",startTimeline:"Start on timeline",skatingDuration:"Skating duration",previewClip:"Preview clip",selectPlayer:"Select player",deleteClip:"Delete clip",puckDirector:"Puck Director",puckDirectorSub:"Possession, passes, shots, and alternate takes",puck:"PUCK",possessedBy:"Possessed by {name}",inFlight:"In flight",loose:"Loose",activePuckTake:"Active Puck Route",copy:"Copy",delete:"Delete",stopLive:"Stop live directing",directLive:"Direct live from playhead",newTakeDirect:"New route + direct from start",liveHelp:"While the skating timeline plays, tap a player to pass or establish possession. Tap open ice to create a shot. Player movement remains unchanged across takes.",addAt:"Add at {time}",givePossession:"Give possession to",choosePlayer:"Choose an on-ice player",setPossession:"Set possession",passTap:"Pass · tap player",shootTap:"Shoot · tap ice",drop:"Drop",passDefaults:"Pass Defaults",passSpeed:"Pass Speed",sauce:"Sauce",ignoreDefense:"Ignore defense",shotDefaults:"Shot Defaults",power:"Power",clearPuckRoute:"Clear active puck route",puckEvent:"Puck Event",eventSub:"Drag the chip or trim its time here",timelinePosition:"Timeline Position",eventTime:"Event time",setPlayhead:"Set playhead here",possessionTarget:"Possession Target",pass:"Pass",receiver:"Receiver",shot:"Shot",target:"Target",retargetShot:"Retarget shot",deleteEvent:"Delete event",singleTimeline:"SINGLE TIMELINE",timeDrag:"TIME · DRAG TO SCRUB",length:"Length",puckTake:"+ Puck route",routes:"Routes",ahead:"Ahead",all:"All",undo:"Undo",redo:"Redo",clearDrawing:"Clear telestration",onBench:"{count} on bench",placeOnIce:"Place {name} on ice",move:"MOVE",possessionAbbr:"POS",invalid:"Invalid",release:"Release",arrival:"arrival",openSetup:"Open setup drawer",closeSetup:"Collapse setup drawer",openInspector:"Open inspector drawer",closeInspector:"Collapse inspector drawer",showTimeline:"Show timeline",hideTimeline:"Minimize timeline",theme:"Theme",canadianNote:"Canadian English adds a little ‘eh’ and places a maple leaf at center ice.",usEnglish:"US English",canadianEnglish:"Canadian English",swedish:"Swedish",finnish:"Finnish",russian:"Russian",wholeBadge:"FULL ICE",halfBadge:"HALF ICE",onside:"Onside",offsideWarning:"Delayed offside warning: attacker must tag up",offsideViolation:"Offside: puck entered before attackers tagged up",nothingUndo:"Nothing to undo.",nothingRedo:"Nothing to redo."
 };
 const I18N={
- sv:{appSubtitle:"Enkel tidslinjeregissör · Version 5.10",newBoard:"Ny",savePlay:"Spara spel",boardSetup:"Tavelförberedelser",boardSetupSub:"Lag, trupp, inställningar och spelbok",teams:"LAG",roster:"TRUPP",settings:"INSTÄLLNINGAR",playbook:"SPELBOK",teamsRink:"Lag och rink",teamsHelp:"Redigera lagidentitet och färger. Spelare ärver lagets färger om ingen egen färg har valts.",rosterHelp:"Bänken sorteras efter kedjor, backpar, målvakter och ledare. Välj en bänkbricka för att placera den på isen.",addPlayer:"+ Lägg till spelare",searchRoster:"Sök i truppen",appearanceLanguage:"Utseende och språk",appearanceHelp:"Välj en stor ljus arbetsyta i USA Hockey-stil eller ett mörkt läge med låg bländning.",light:"Ljust",dark:"Mörkt",language:"Språk",iceView:"Isvy",wholeIce:"Hel rink",halfIce:"Halv rink",tokenDisplay:"Brickvisning",names:"Namn",numbers:"Nummer",positions:"Positioner",leadership:"Lagroller",offsideLight:"Offsideindikator",centerLogo:"Mittislogotyp",opacity:"Opacitet",useBotdDefault:"Använd BOTD-standard",timeline:"Tidslinje",showRecordedRoutes:"Visa inspelade rutter",routeDisplay:"Ruttvisning",aheadErase:"Framför; sudda bakom",showAll:"Visa alla",hidden:"Dold",defaultDuration:"Standardlängd (sekunder)",playbookName:"Spelbokens namn",saveCurrent:"Spara aktuell",exportJson:"Exportera JSON",importJson:"Importera JSON",templates:"Nya v5-tidslinjemallar",myPlays:"Mina spel",inspector:"Inspektör",inspectorPrompt:"Välj spelare, puck eller tidslinjeåtgärd",playerMovement:"Spelarrörelse",recordTrimMovement:"Spela in och trimma skridskoåkning",movementTrack:"Rörelsespår",recordPath:"Spela in väg vid spelhuvudet",cancelRecording:"Avbryt inspelning",previousClip:"Föregående klipp",nextClip:"Nästa klipp",movementClips:"Rörelseklipp",presentationHighlight:"Presentationsmarkering",glowBlinkPlayer:"Glöd / blinka spelare",glowBlinkPuck:"Glöd / blinka puck",brightness:"Ljusstyrka",blink:"Blinka",blinkRate:"Blinkfrekvens",returnBench:"Tillbaka till bänken",movementClip:"Rörelseklipp",clipTiming:"Klipptiming",startTimeline:"Start på tidslinjen",skatingDuration:"Åktid",previewClip:"Förhandsvisa klipp",selectPlayer:"Välj spelare",deleteClip:"Ta bort klipp",puckDirector:"Puckregissör",puckDirectorSub:"Innehav, passningar, skott och alternativa spår",puck:"PUCK",possessedBy:"Innehav: {name}",inFlight:"I luften",loose:"Lös",activePuckTake:"Aktivt puckspår",copy:"Kopiera",delete:"Ta bort",stopLive:"Stoppa live",directLive:"Styr live från spelhuvudet",newTakeDirect:"Nytt spår + styr från start",addAt:"Lägg till vid {time}",givePossession:"Ge pucken till",choosePlayer:"Välj spelare på isen",setPossession:"Sätt innehav",passTap:"Passning · tryck spelare",shootTap:"Skott · tryck på isen",drop:"Släpp",passDefaults:"Passningsstandard",passSpeed:"Passningshastighet",sauce:"Lobbpass",ignoreDefense:"Ignorera försvar",shotDefaults:"Skottstandard",power:"Kraft",clearPuckRoute:"Rensa aktiv puckrutt",puckEvent:"Puckhändelse",timelinePosition:"Tidslinjeposition",eventTime:"Händelsetid",setPlayhead:"Flytta spelhuvud hit",possessionTarget:"Mottagare av innehav",pass:"Passning",receiver:"Mottagare",shot:"Skott",retargetShot:"Välj nytt skottmål",deleteEvent:"Ta bort händelse",singleTimeline:"ENKEL TIDSLINJE",timeDrag:"TID · DRA FÖR ATT SPOLA",length:"Längd",puckTake:"+ Puckspår",routes:"Rutter",ahead:"Framför",all:"Alla",theme:"Tema",canadianNote:"Kanadensisk engelska lägger till lite ‘eh’ och ett lönnlöv på mittisen.",wholeBadge:"HEL RINK",halfBadge:"HALV RINK",onside:"Onside",offsideWarning:"Avvaktande offside: spelare måste tagga upp",offsideViolation:"Offside: pucken gick in innan spelarna taggade upp"},
- fi:{appSubtitle:"Yhden aikajanan ohjain · Versio 5.10",newBoard:"Uusi",savePlay:"Tallenna kuvio",boardSetup:"Laudan asetukset",boardSetupSub:"Joukkueet, kokoonpano, asetukset ja pelikirja",teams:"JOUKKUEET",roster:"KOKOONPANO",settings:"ASETUKSET",playbook:"PELIKIRJA",teamsRink:"Joukkueet ja kaukalo",teamsHelp:"Muokkaa joukkueiden nimiä ja värejä. Pelaajat perivät joukkueen värit, ellei omaa väriä ole valittu.",rosterHelp:"Vaihtoaitio järjestetään ketjujen, pakkiparien, maalivahtien ja toimihenkilöiden mukaan.",addPlayer:"+ Lisää pelaaja",searchRoster:"Hae kokoonpanosta",appearanceLanguage:"Ulkoasu ja kieli",appearanceHelp:"Valitse suuri vaalea USA Hockey -henkinen työtila tai vähähäikäisyinen tumma tila.",light:"Vaalea",dark:"Tumma",language:"Kieli",iceView:"Jäänäkymä",wholeIce:"Koko kaukalo",halfIce:"Puolikas kaukalo",tokenDisplay:"Pelimerkkien tiedot",names:"Nimet",numbers:"Numerot",positions:"Pelipaikat",leadership:"Kapteenit",offsideLight:"Paitsioilmaisin",centerLogo:"Keskijään logo",opacity:"Peittävyys",useBotdDefault:"Käytä BOTD-oletusta",timeline:"Aikajana",showRecordedRoutes:"Näytä tallennetut reitit",routeDisplay:"Reittien näyttö",aheadErase:"Edessä; poista takaa",showAll:"Näytä kaikki",hidden:"Piilotettu",defaultDuration:"Oletuskesto (sekuntia)",playbookName:"Pelikirjan nimi",saveCurrent:"Tallenna nykyinen",exportJson:"Vie JSON",importJson:"Tuo JSON",templates:"Uudet v5-aikajanamallit",myPlays:"Omat kuviot",inspector:"Tarkastin",inspectorPrompt:"Valitse pelaaja, kiekko tai aikajanatapahtuma",playerMovement:"Pelaajan liike",recordTrimMovement:"Tallenna ja säädä luistelua",movementTrack:"Liikeraita",recordPath:"Tallenna reitti kohdasta",cancelRecording:"Peruuta tallennus",previousClip:"Edellinen leike",nextClip:"Seuraava leike",movementClips:"Liikeleikkeet",presentationHighlight:"Esityskorostus",glowBlinkPlayer:"Hehku / vilkuta pelaajaa",glowBlinkPuck:"Hehku / vilkuta kiekkoa",brightness:"Kirkkaus",blink:"Vilkuta",blinkRate:"Vilkkumisnopeus",returnBench:"Palauta aitioon",movementClip:"Liikeleike",clipTiming:"Leikkeen ajoitus",startTimeline:"Alku aikajanalla",skatingDuration:"Luistelun kesto",previewClip:"Esikatsele leike",selectPlayer:"Valitse pelaaja",deleteClip:"Poista leike",puckDirector:"Kiekon ohjain",puckDirectorSub:"Hallinta, syötöt, laukaukset ja vaihtoehdot",puck:"KIEKKO",possessedBy:"Hallussa: {name}",inFlight:"Liikkeessä",loose:"Vapaana",activePuckTake:"Aktiivinen kiekkoreitti",copy:"Kopioi",delete:"Poista",stopLive:"Lopeta live-ohjaus",directLive:"Ohjaa livenä tästä",newTakeDirect:"Uusi reitti + ohjaa alusta",addAt:"Lisää kohdassa {time}",givePossession:"Anna kiekko pelaajalle",choosePlayer:"Valitse jäällä oleva pelaaja",setPossession:"Aseta hallinta",passTap:"Syöttö · napauta pelaajaa",shootTap:"Laukaus · napauta jäätä",drop:"Pudota",passDefaults:"Syötön oletukset",passSpeed:"Syötön nopeus",sauce:"Ilmasyöttö",ignoreDefense:"Ohita puolustus",shotDefaults:"Laukauksen oletukset",power:"Voima",clearPuckRoute:"Tyhjennä aktiivinen kiekkoreitti",puckEvent:"Kiekkotapahtuma",timelinePosition:"Sijainti aikajanalla",eventTime:"Tapahtuma-aika",setPlayhead:"Siirrä toistopää tähän",possessionTarget:"Hallinnan kohde",pass:"Syöttö",receiver:"Vastaanottaja",shot:"Laukaus",retargetShot:"Valitse uusi laukauskohde",deleteEvent:"Poista tapahtuma",singleTimeline:"YKSI AIKAJANA",timeDrag:"AIKA · VEDÄ SELATAKSESI",length:"Pituus",puckTake:"+ Kiekkoreitti",routes:"Reitit",ahead:"Edessä",all:"Kaikki",theme:"Teema",wholeBadge:"KOKO KAUKALO",halfBadge:"PUOLIKAS KAUKALO",onside:"Ei paitsiota",offsideWarning:"Siirretty paitsio: pelaajan on käytävä ulkona",offsideViolation:"Paitsio: kiekko meni alueelle ennen palautumista"},
- ru:{appSubtitle:"Режиссёр единой шкалы · Версия 5.10",newBoard:"Новая",savePlay:"Сохранить схему",boardSetup:"Настройка доски",boardSetupSub:"Команды, состав, настройки и плейбук",teams:"КОМАНДЫ",roster:"СОСТАВ",settings:"НАСТРОЙКИ",playbook:"ПЛЕЙБУК",teamsRink:"Команды и площадка",teamsHelp:"Изменяйте названия и цвета команд. Игроки используют командные цвета, если не задан индивидуальный вариант.",rosterHelp:"Скамейка сортируется по звеньям, парам защитников, вратарям и штабу.",addPlayer:"+ Добавить игрока",searchRoster:"Поиск по составу",appearanceLanguage:"Вид и язык",appearanceHelp:"Выберите крупный светлый интерфейс в стиле USA Hockey или тёмный режим с низкой яркостью.",light:"Светлая",dark:"Тёмная",language:"Язык",iceView:"Вид льда",wholeIce:"Вся площадка",halfIce:"Половина площадки",tokenDisplay:"Подписи фишек",names:"Имена",numbers:"Номера",positions:"Позиции",leadership:"Капитаны",offsideLight:"Индикатор офсайда",centerLogo:"Логотип в центре",opacity:"Прозрачность",useBotdDefault:"Логотип BOTD",timeline:"Шкала времени",showRecordedRoutes:"Показывать маршруты",routeDisplay:"Отображение маршрута",aheadErase:"Впереди; стирать позади",showAll:"Показать всё",hidden:"Скрыто",defaultDuration:"Длительность по умолчанию (сек.)",playbookName:"Название плейбука",saveCurrent:"Сохранить текущую",exportJson:"Экспорт JSON",importJson:"Импорт JSON",templates:"Новые шаблоны v5",myPlays:"Мои схемы",inspector:"Инспектор",inspectorPrompt:"Выберите игрока, шайбу или событие",playerMovement:"Движение игрока",recordTrimMovement:"Запись и настройка катания",movementTrack:"Дорожка движения",recordPath:"Записать путь от курсора",cancelRecording:"Отменить запись",previousClip:"Предыдущий клип",nextClip:"Следующий клип",movementClips:"Клипы движения",presentationHighlight:"Подсветка для показа",glowBlinkPlayer:"Свечение / мигание игрока",glowBlinkPuck:"Свечение / мигание шайбы",brightness:"Яркость",blink:"Мигание",blinkRate:"Частота мигания",returnBench:"Вернуть на скамейку",movementClip:"Клип движения",clipTiming:"Время клипа",startTimeline:"Начало на шкале",skatingDuration:"Длительность движения",previewClip:"Просмотр клипа",selectPlayer:"Выбрать игрока",deleteClip:"Удалить клип",puckDirector:"Режиссёр шайбы",puckDirectorSub:"Владение, передачи, броски и варианты",puck:"ШАЙБА",possessedBy:"Владеет: {name}",inFlight:"В полёте",loose:"Свободна",activePuckTake:"Активный маршрут шайбы",copy:"Копировать",delete:"Удалить",stopLive:"Остановить live",directLive:"Управлять live отсюда",newTakeDirect:"Новый вариант + с начала",addAt:"Добавить в {time}",givePossession:"Передать владение",choosePlayer:"Выберите игрока на льду",setPossession:"Назначить владение",passTap:"Пас · нажмите игрока",shootTap:"Бросок · нажмите лёд",drop:"Оставить",passDefaults:"Параметры паса",passSpeed:"Скорость паса",sauce:"Пас верхом",ignoreDefense:"Игнорировать защиту",shotDefaults:"Параметры броска",power:"Сила",clearPuckRoute:"Очистить маршрут шайбы",puckEvent:"Событие шайбы",timelinePosition:"Позиция на шкале",eventTime:"Время события",setPlayhead:"Переместить курсор сюда",possessionTarget:"Получатель владения",pass:"Пас",receiver:"Получатель",shot:"Бросок",retargetShot:"Изменить цель",deleteEvent:"Удалить событие",singleTimeline:"ЕДИНАЯ ШКАЛА",timeDrag:"ВРЕМЯ · ТЯНИТЕ ДЛЯ ПРОКРУТКИ",length:"Длина",puckTake:"+ Вариант шайбы",routes:"Маршруты",ahead:"Впереди",all:"Все",theme:"Тема",wholeBadge:"ВСЯ ПЛОЩАДКА",halfBadge:"ПОЛОВИНА",onside:"Без офсайда",offsideWarning:"Отложенный офсайд: нужно выйти из зоны",offsideViolation:"Офсайд: шайба вошла до выхода игроков"}
+ sv:{appSubtitle:"Enkel tidslinjeregissör · Version 6.0",newBoard:"Ny",savePlay:"Spara spel",boardSetup:"Tavelförberedelser",boardSetupSub:"Lag, trupp, inställningar och spelbok",teams:"LAG",roster:"TRUPP",settings:"INSTÄLLNINGAR",playbook:"SPELBOK",teamsRink:"Lag och rink",teamsHelp:"Redigera lagidentitet och färger. Spelare ärver lagets färger om ingen egen färg har valts.",rosterHelp:"Bänken sorteras efter kedjor, backpar, målvakter och ledare. Välj en bänkbricka för att placera den på isen.",addPlayer:"+ Lägg till spelare",searchRoster:"Sök i truppen",appearanceLanguage:"Utseende och språk",appearanceHelp:"Välj en stor ljus arbetsyta i USA Hockey-stil eller ett mörkt läge med låg bländning.",light:"Ljust",dark:"Mörkt",language:"Språk",iceView:"Isvy",wholeIce:"Hel rink",halfIce:"Halv rink",tokenDisplay:"Brickvisning",names:"Namn",numbers:"Nummer",positions:"Positioner",leadership:"Lagroller",offsideLight:"Offsideindikator",centerLogo:"Mittislogotyp",opacity:"Opacitet",useBotdDefault:"Använd BOTD-standard",timeline:"Tidslinje",showRecordedRoutes:"Visa inspelade rutter",routeDisplay:"Ruttvisning",aheadErase:"Framför; sudda bakom",showAll:"Visa alla",hidden:"Dold",defaultDuration:"Standardlängd (sekunder)",playbookName:"Spelbokens namn",saveCurrent:"Spara aktuell",exportJson:"Exportera JSON",importJson:"Importera JSON",templates:"Nya v5-tidslinjemallar",myPlays:"Mina spel",inspector:"Inspektör",inspectorPrompt:"Välj spelare, puck eller tidslinjeåtgärd",playerMovement:"Spelarrörelse",recordTrimMovement:"Spela in och trimma skridskoåkning",movementTrack:"Rörelsespår",recordPath:"Spela in väg vid spelhuvudet",cancelRecording:"Avbryt inspelning",previousClip:"Föregående klipp",nextClip:"Nästa klipp",movementClips:"Rörelseklipp",presentationHighlight:"Presentationsmarkering",glowBlinkPlayer:"Glöd / blinka spelare",glowBlinkPuck:"Glöd / blinka puck",brightness:"Ljusstyrka",blink:"Blinka",blinkRate:"Blinkfrekvens",returnBench:"Tillbaka till bänken",movementClip:"Rörelseklipp",clipTiming:"Klipptiming",startTimeline:"Start på tidslinjen",skatingDuration:"Åktid",previewClip:"Förhandsvisa klipp",selectPlayer:"Välj spelare",deleteClip:"Ta bort klipp",puckDirector:"Puckregissör",puckDirectorSub:"Innehav, passningar, skott och alternativa spår",puck:"PUCK",possessedBy:"Innehav: {name}",inFlight:"I luften",loose:"Lös",activePuckTake:"Aktivt puckspår",copy:"Kopiera",delete:"Ta bort",stopLive:"Stoppa live",directLive:"Styr live från spelhuvudet",newTakeDirect:"Nytt spår + styr från start",addAt:"Lägg till vid {time}",givePossession:"Ge pucken till",choosePlayer:"Välj spelare på isen",setPossession:"Sätt innehav",passTap:"Passning · tryck spelare",shootTap:"Skott · tryck på isen",drop:"Släpp",passDefaults:"Passningsstandard",passSpeed:"Passningshastighet",sauce:"Lobbpass",ignoreDefense:"Ignorera försvar",shotDefaults:"Skottstandard",power:"Kraft",clearPuckRoute:"Rensa aktiv puckrutt",puckEvent:"Puckhändelse",timelinePosition:"Tidslinjeposition",eventTime:"Händelsetid",setPlayhead:"Flytta spelhuvud hit",possessionTarget:"Mottagare av innehav",pass:"Passning",receiver:"Mottagare",shot:"Skott",retargetShot:"Välj nytt skottmål",deleteEvent:"Ta bort händelse",singleTimeline:"ENKEL TIDSLINJE",timeDrag:"TID · DRA FÖR ATT SPOLA",length:"Längd",puckTake:"+ Puckspår",routes:"Rutter",ahead:"Framför",all:"Alla",theme:"Tema",canadianNote:"Kanadensisk engelska lägger till lite ‘eh’ och ett lönnlöv på mittisen.",wholeBadge:"HEL RINK",halfBadge:"HALV RINK",onside:"Onside",offsideWarning:"Avvaktande offside: spelare måste tagga upp",offsideViolation:"Offside: pucken gick in innan spelarna taggade upp"},
+ fi:{appSubtitle:"Yhden aikajanan ohjain · Versio 6.0",newBoard:"Uusi",savePlay:"Tallenna kuvio",boardSetup:"Laudan asetukset",boardSetupSub:"Joukkueet, kokoonpano, asetukset ja pelikirja",teams:"JOUKKUEET",roster:"KOKOONPANO",settings:"ASETUKSET",playbook:"PELIKIRJA",teamsRink:"Joukkueet ja kaukalo",teamsHelp:"Muokkaa joukkueiden nimiä ja värejä. Pelaajat perivät joukkueen värit, ellei omaa väriä ole valittu.",rosterHelp:"Vaihtoaitio järjestetään ketjujen, pakkiparien, maalivahtien ja toimihenkilöiden mukaan.",addPlayer:"+ Lisää pelaaja",searchRoster:"Hae kokoonpanosta",appearanceLanguage:"Ulkoasu ja kieli",appearanceHelp:"Valitse suuri vaalea USA Hockey -henkinen työtila tai vähähäikäisyinen tumma tila.",light:"Vaalea",dark:"Tumma",language:"Kieli",iceView:"Jäänäkymä",wholeIce:"Koko kaukalo",halfIce:"Puolikas kaukalo",tokenDisplay:"Pelimerkkien tiedot",names:"Nimet",numbers:"Numerot",positions:"Pelipaikat",leadership:"Kapteenit",offsideLight:"Paitsioilmaisin",centerLogo:"Keskijään logo",opacity:"Peittävyys",useBotdDefault:"Käytä BOTD-oletusta",timeline:"Aikajana",showRecordedRoutes:"Näytä tallennetut reitit",routeDisplay:"Reittien näyttö",aheadErase:"Edessä; poista takaa",showAll:"Näytä kaikki",hidden:"Piilotettu",defaultDuration:"Oletuskesto (sekuntia)",playbookName:"Pelikirjan nimi",saveCurrent:"Tallenna nykyinen",exportJson:"Vie JSON",importJson:"Tuo JSON",templates:"Uudet v5-aikajanamallit",myPlays:"Omat kuviot",inspector:"Tarkastin",inspectorPrompt:"Valitse pelaaja, kiekko tai aikajanatapahtuma",playerMovement:"Pelaajan liike",recordTrimMovement:"Tallenna ja säädä luistelua",movementTrack:"Liikeraita",recordPath:"Tallenna reitti kohdasta",cancelRecording:"Peruuta tallennus",previousClip:"Edellinen leike",nextClip:"Seuraava leike",movementClips:"Liikeleikkeet",presentationHighlight:"Esityskorostus",glowBlinkPlayer:"Hehku / vilkuta pelaajaa",glowBlinkPuck:"Hehku / vilkuta kiekkoa",brightness:"Kirkkaus",blink:"Vilkuta",blinkRate:"Vilkkumisnopeus",returnBench:"Palauta aitioon",movementClip:"Liikeleike",clipTiming:"Leikkeen ajoitus",startTimeline:"Alku aikajanalla",skatingDuration:"Luistelun kesto",previewClip:"Esikatsele leike",selectPlayer:"Valitse pelaaja",deleteClip:"Poista leike",puckDirector:"Kiekon ohjain",puckDirectorSub:"Hallinta, syötöt, laukaukset ja vaihtoehdot",puck:"KIEKKO",possessedBy:"Hallussa: {name}",inFlight:"Liikkeessä",loose:"Vapaana",activePuckTake:"Aktiivinen kiekkoreitti",copy:"Kopioi",delete:"Poista",stopLive:"Lopeta live-ohjaus",directLive:"Ohjaa livenä tästä",newTakeDirect:"Uusi reitti + ohjaa alusta",addAt:"Lisää kohdassa {time}",givePossession:"Anna kiekko pelaajalle",choosePlayer:"Valitse jäällä oleva pelaaja",setPossession:"Aseta hallinta",passTap:"Syöttö · napauta pelaajaa",shootTap:"Laukaus · napauta jäätä",drop:"Pudota",passDefaults:"Syötön oletukset",passSpeed:"Syötön nopeus",sauce:"Ilmasyöttö",ignoreDefense:"Ohita puolustus",shotDefaults:"Laukauksen oletukset",power:"Voima",clearPuckRoute:"Tyhjennä aktiivinen kiekkoreitti",puckEvent:"Kiekkotapahtuma",timelinePosition:"Sijainti aikajanalla",eventTime:"Tapahtuma-aika",setPlayhead:"Siirrä toistopää tähän",possessionTarget:"Hallinnan kohde",pass:"Syöttö",receiver:"Vastaanottaja",shot:"Laukaus",retargetShot:"Valitse uusi laukauskohde",deleteEvent:"Poista tapahtuma",singleTimeline:"YKSI AIKAJANA",timeDrag:"AIKA · VEDÄ SELATAKSESI",length:"Pituus",puckTake:"+ Kiekkoreitti",routes:"Reitit",ahead:"Edessä",all:"Kaikki",theme:"Teema",wholeBadge:"KOKO KAUKALO",halfBadge:"PUOLIKAS KAUKALO",onside:"Ei paitsiota",offsideWarning:"Siirretty paitsio: pelaajan on käytävä ulkona",offsideViolation:"Paitsio: kiekko meni alueelle ennen palautumista"},
+ ru:{appSubtitle:"Режиссёр единой шкалы · Версия 6.0",newBoard:"Новая",savePlay:"Сохранить схему",boardSetup:"Настройка доски",boardSetupSub:"Команды, состав, настройки и плейбук",teams:"КОМАНДЫ",roster:"СОСТАВ",settings:"НАСТРОЙКИ",playbook:"ПЛЕЙБУК",teamsRink:"Команды и площадка",teamsHelp:"Изменяйте названия и цвета команд. Игроки используют командные цвета, если не задан индивидуальный вариант.",rosterHelp:"Скамейка сортируется по звеньям, парам защитников, вратарям и штабу.",addPlayer:"+ Добавить игрока",searchRoster:"Поиск по составу",appearanceLanguage:"Вид и язык",appearanceHelp:"Выберите крупный светлый интерфейс в стиле USA Hockey или тёмный режим с низкой яркостью.",light:"Светлая",dark:"Тёмная",language:"Язык",iceView:"Вид льда",wholeIce:"Вся площадка",halfIce:"Половина площадки",tokenDisplay:"Подписи фишек",names:"Имена",numbers:"Номера",positions:"Позиции",leadership:"Капитаны",offsideLight:"Индикатор офсайда",centerLogo:"Логотип в центре",opacity:"Прозрачность",useBotdDefault:"Логотип BOTD",timeline:"Шкала времени",showRecordedRoutes:"Показывать маршруты",routeDisplay:"Отображение маршрута",aheadErase:"Впереди; стирать позади",showAll:"Показать всё",hidden:"Скрыто",defaultDuration:"Длительность по умолчанию (сек.)",playbookName:"Название плейбука",saveCurrent:"Сохранить текущую",exportJson:"Экспорт JSON",importJson:"Импорт JSON",templates:"Новые шаблоны v5",myPlays:"Мои схемы",inspector:"Инспектор",inspectorPrompt:"Выберите игрока, шайбу или событие",playerMovement:"Движение игрока",recordTrimMovement:"Запись и настройка катания",movementTrack:"Дорожка движения",recordPath:"Записать путь от курсора",cancelRecording:"Отменить запись",previousClip:"Предыдущий клип",nextClip:"Следующий клип",movementClips:"Клипы движения",presentationHighlight:"Подсветка для показа",glowBlinkPlayer:"Свечение / мигание игрока",glowBlinkPuck:"Свечение / мигание шайбы",brightness:"Яркость",blink:"Мигание",blinkRate:"Частота мигания",returnBench:"Вернуть на скамейку",movementClip:"Клип движения",clipTiming:"Время клипа",startTimeline:"Начало на шкале",skatingDuration:"Длительность движения",previewClip:"Просмотр клипа",selectPlayer:"Выбрать игрока",deleteClip:"Удалить клип",puckDirector:"Режиссёр шайбы",puckDirectorSub:"Владение, передачи, броски и варианты",puck:"ШАЙБА",possessedBy:"Владеет: {name}",inFlight:"В полёте",loose:"Свободна",activePuckTake:"Активный маршрут шайбы",copy:"Копировать",delete:"Удалить",stopLive:"Остановить live",directLive:"Управлять live отсюда",newTakeDirect:"Новый вариант + с начала",addAt:"Добавить в {time}",givePossession:"Передать владение",choosePlayer:"Выберите игрока на льду",setPossession:"Назначить владение",passTap:"Пас · нажмите игрока",shootTap:"Бросок · нажмите лёд",drop:"Оставить",passDefaults:"Параметры паса",passSpeed:"Скорость паса",sauce:"Пас верхом",ignoreDefense:"Игнорировать защиту",shotDefaults:"Параметры броска",power:"Сила",clearPuckRoute:"Очистить маршрут шайбы",puckEvent:"Событие шайбы",timelinePosition:"Позиция на шкале",eventTime:"Время события",setPlayhead:"Переместить курсор сюда",possessionTarget:"Получатель владения",pass:"Пас",receiver:"Получатель",shot:"Бросок",retargetShot:"Изменить цель",deleteEvent:"Удалить событие",singleTimeline:"ЕДИНАЯ ШКАЛА",timeDrag:"ВРЕМЯ · ТЯНИТЕ ДЛЯ ПРОКРУТКИ",length:"Длина",puckTake:"+ Вариант шайбы",routes:"Маршруты",ahead:"Впереди",all:"Все",theme:"Тема",wholeBadge:"ВСЯ ПЛОЩАДКА",halfBadge:"ПОЛОВИНА",onside:"Без офсайда",offsideWarning:"Отложенный офсайд: нужно выйти из зоны",offsideViolation:"Офсайд: шайба вошла до выхода игроков"}
 };
 function currentLanguage(){return state?.appearance?.language||"en-US"}
 function canadianize(text){if(!text||/^[\d\s.:/+\-×]+$/.test(text))return text;const m=text.match(/([?!])$/);return m?`${text.slice(0,-1)}, eh${m[1]}`:`${text}, eh`}
@@ -541,7 +664,7 @@ function applyStaticTranslations(){
 
 
 Object.assign(BASE_TEXT,{loadTimeline:"Load timeline",load:"Load",noUserPlays:"No user plays saved yet.",myPlay:"MY PLAY",singleTimelinePlay:"Single-timeline play",positionAt:"Position at {time}",routeLength:"Route length {length} board units · average {speed} units/s.",noPlayers:"Place players from the benches, select a player, then record a movement path at the current playhead. Select the puck to build or live-direct its route.",deleteTake:"Delete",setTargetHint:"Choose a player below; the red targeting triangle identifies the highlighted token on the ice.",themeLight:"Light mode",themeDark:"Dark mode",glowHelp:"Use glow to call attention to this object during a presentation.",rateUnit:"{rate} Hz",percent:"{value}%",seconds:"{value} s",passRoute:"Puck Route",playerTrack:"Player track",active:"Active",notAvailable:"Not available"});
-Object.assign(BASE_TEXT,{topStatus:"{onIce} on ice · {moves} movement clips · {events} puck events",teamColorsSummary:"Team identity and colors",templateHelp:"Version 5 templates use continuous movement tracks and an independent puck route.",liveTitle:"LIVE PUCK DIRECTOR",liveInstruction:"Tap a player to pass or take possession · tap open ice to shoot",timelineLabel:"Timeline",chooseColor:"Choose color",colorDialogHelp:"Use the same Grid, Spectrum, or Sliders workflow throughout the app.",primary:"Primary",trim:"Trim",grid:"Grid",spectrum:"Spectrum",sliders:"Sliders",markerWidth:"Marker width",cancel:"Cancel",apply:"Apply",confirm:"Confirm"});
+Object.assign(BASE_TEXT,{topStatus:"{onIce} on ice · {moves} movement clips · {events} puck events",teamColorsSummary:"Team identity and colors",templateHelp:"Version 5 templates use continuous movement tracks and an independent puck route.",liveTitle:"LIVE PUCK DIRECTOR",liveInstruction:"Pass: tap a player or open ice",timelineLabel:"Timeline",chooseColor:"Choose color",colorDialogHelp:"Use the same Grid, Spectrum, or Sliders workflow throughout the app.",primary:"Primary",trim:"Trim",grid:"Grid",spectrum:"Spectrum",sliders:"Sliders",markerWidth:"Marker width",cancel:"Cancel",apply:"Apply",confirm:"Confirm"});
 Object.assign(I18N.sv,{topStatus:"{onIce} på isen · {moves} rörelseklipp · {events} puckhändelser",teamColorsSummary:"Lagidentitet och färger",templateHelp:"Version 5-mallarna använder kontinuerliga rörelsespår och en separat puckrutt.",liveTitle:"LIVE PUCKREGISSÖR",liveInstruction:"Tryck på en spelare för passning eller innehav · tryck på öppen is för skott",timelineLabel:"Tidslinje",chooseColor:"Välj färg",colorDialogHelp:"Använd samma arbetsflöde med rutnät, spektrum eller reglage i hela appen.",primary:"Primär",trim:"Kant",grid:"Rutnät",spectrum:"Spektrum",sliders:"Reglage",markerWidth:"Pennbredd",cancel:"Avbryt",apply:"Tillämpa",confirm:"Bekräfta"});
 Object.assign(I18N.fi,{topStatus:"{onIce} jäällä · {moves} liikeklippiä · {events} kiekkotapahtumaa",teamColorsSummary:"Joukkueen tunnus ja värit",templateHelp:"Version 5 mallit käyttävät jatkuvia liikeratoja ja erillistä kiekkoreittiä.",liveTitle:"LIVE-KIEKKO-OHJAIN",liveInstruction:"Napauta pelaajaa syöttöä tai hallintaa varten · napauta avointa jäätä laukaukseen",timelineLabel:"Aikajana",chooseColor:"Valitse väri",colorDialogHelp:"Käytä samaa ruudukko-, spektri- tai liukusäädintyönkulkua koko sovelluksessa.",primary:"Pääväri",trim:"Reunaväri",grid:"Ruudukko",spectrum:"Spektri",sliders:"Liukusäätimet",markerWidth:"Kynän leveys",cancel:"Peruuta",apply:"Käytä",confirm:"Vahvista"});
 Object.assign(I18N.ru,{topStatus:"На льду: {onIce} · дорожек: {moves} · событий шайбы: {events}",teamColorsSummary:"Название и цвета команды",templateHelp:"Шаблоны версии 5 используют непрерывные дорожки движения и отдельный маршрут шайбы.",liveTitle:"РЕЖИССЁР ШАЙБЫ",liveInstruction:"Нажмите игрока для паса или владения · нажмите свободный лёд для броска",timelineLabel:"Шкала",chooseColor:"Выберите цвет",colorDialogHelp:"Используйте единый выбор: сетка, спектр или ползунки.",primary:"Основной",trim:"Окантовка",grid:"Сетка",spectrum:"Спектр",sliders:"Ползунки",markerWidth:"Толщина маркера",cancel:"Отмена",apply:"Применить",confirm:"Подтвердить"});
@@ -799,9 +922,9 @@ function setupV52Events(){
 function makeDefaultState(){
   const base={
     version:APP_VERSION,view:"whole",teams:deepClone(TEAM_DEFAULTS),rosters:{A:makeRoster("A",namesA),B:makeRoster("B",namesB)},
-    onIce:createCanonicalLineup("whole"),puckStart:{x:500,y:300},timeline:{duration:12,movements:[],puckTakes:[{id:"take_default",name:"Puck Route A",events:[]}],activeTakeId:"take_default"},
+    onIce:{},puckStart:{x:500,y:300},timeline:{duration:12,movements:[],puckTakes:[{id:"take_default",name:"Puck Route A",events:[]}],activeTakeId:"take_default"},
     drawings:[],display:{names:false,numbers:false,positions:true,leadership:false,offside:true,routes:true,routeMode:"ahead"},
-    centerLogo:null,logoOpacity:.32,playbookName:"BOTD Playbook v5.10",playbookLogo:null,marker:{color:"#111827",width:6},
+    centerLogo:null,logoOpacity:.32,playbookName:"BOTD Playbook v6.0",playbookLogo:null,marker:{color:"#111827",width:6},
     appearance:{theme:"light",language:"en-US"},puckGlow:{enabled:false,color:"#39D8FF",brightness:70,blink:true,rate:1.2},variations:[],activeVariationId:"option_default"
   };
   base.variations=[captureVariationFromStateLike(base,"option_default","Option 1")];return base
@@ -815,9 +938,9 @@ function scheduleSave(){clearTimeout(autosaveTimer);autosaveTimer=setTimeout(sav
 function saveSession(){try{syncActiveVariation();localStorage.setItem(SESSION_KEY,JSON.stringify(state));localStorage.setItem(PLAYBOOK_KEY,JSON.stringify({name:state.playbookName,logo:state.playbookLogo,plays:userPlays}))}catch(e){console.warn("Autosave failed",e)}}
 function restore(){
   try{
-    const raw=localStorage.getItem(SESSION_KEY)||localStorage.getItem(LEGACY_SESSION_KEY_V59)||localStorage.getItem(LEGACY_SESSION_KEY_V58)||localStorage.getItem(LEGACY_SESSION_KEY_V57)||localStorage.getItem(LEGACY_SESSION_KEY)||localStorage.getItem(LEGACY_SESSION_KEY_V55)||localStorage.getItem(LEGACY_SESSION_KEY_V54)||localStorage.getItem(LEGACY_SESSION_KEY_V53)||localStorage.getItem(LEGACY_SESSION_KEY_V52)||localStorage.getItem(LEGACY_SESSION_KEY_V51)||localStorage.getItem(LEGACY_SESSION_KEY_V50);
+    const raw=localStorage.getItem(SESSION_KEY)||localStorage.getItem(LEGACY_SESSION_KEY_V510)||localStorage.getItem(LEGACY_SESSION_KEY_V59)||localStorage.getItem(LEGACY_SESSION_KEY_V58)||localStorage.getItem(LEGACY_SESSION_KEY_V57)||localStorage.getItem(LEGACY_SESSION_KEY)||localStorage.getItem(LEGACY_SESSION_KEY_V55)||localStorage.getItem(LEGACY_SESSION_KEY_V54)||localStorage.getItem(LEGACY_SESSION_KEY_V53)||localStorage.getItem(LEGACY_SESSION_KEY_V52)||localStorage.getItem(LEGACY_SESSION_KEY_V51)||localStorage.getItem(LEGACY_SESSION_KEY_V50);
     if(raw){const parsed=JSON.parse(raw);if(parsed)state=normalizeState(parsed)}
-    const pb=JSON.parse(localStorage.getItem(PLAYBOOK_KEY)||localStorage.getItem(LEGACY_PLAYBOOK_KEY_V59)||localStorage.getItem(LEGACY_PLAYBOOK_KEY_V58)||localStorage.getItem(LEGACY_PLAYBOOK_KEY_V57)||localStorage.getItem(LEGACY_PLAYBOOK_KEY)||localStorage.getItem(LEGACY_PLAYBOOK_KEY_V55)||localStorage.getItem(LEGACY_PLAYBOOK_KEY_V54)||localStorage.getItem(LEGACY_PLAYBOOK_KEY_V53)||localStorage.getItem(LEGACY_PLAYBOOK_KEY_V52)||localStorage.getItem(LEGACY_PLAYBOOK_KEY_V51)||localStorage.getItem(LEGACY_PLAYBOOK_KEY_V50)||"null");
+    const pb=JSON.parse(localStorage.getItem(PLAYBOOK_KEY)||localStorage.getItem(LEGACY_PLAYBOOK_KEY_V510)||localStorage.getItem(LEGACY_PLAYBOOK_KEY_V59)||localStorage.getItem(LEGACY_PLAYBOOK_KEY_V58)||localStorage.getItem(LEGACY_PLAYBOOK_KEY_V57)||localStorage.getItem(LEGACY_PLAYBOOK_KEY)||localStorage.getItem(LEGACY_PLAYBOOK_KEY_V55)||localStorage.getItem(LEGACY_PLAYBOOK_KEY_V54)||localStorage.getItem(LEGACY_PLAYBOOK_KEY_V53)||localStorage.getItem(LEGACY_PLAYBOOK_KEY_V52)||localStorage.getItem(LEGACY_PLAYBOOK_KEY_V51)||localStorage.getItem(LEGACY_PLAYBOOK_KEY_V50)||"null");
     if(pb){state.playbookName=pb.name||state.playbookName;state.playbookLogo=pb.logo||state.playbookLogo;userPlays=Array.isArray(pb.plays)?pb.plays:[]}
     ensureVariations()
   }catch(e){console.warn("Restore failed",e);state=makeDefaultState()}
@@ -999,7 +1122,7 @@ function renderRoster(){const teamId=$("#rosterTeamSelect")?.value||"A",term=($(
 function renderPlaybook(){
   const root=$("#builtinPlayList");root.innerHTML="";BUILTINS.forEach((play,index)=>{const card=document.createElement("div");card.className="play-card";card.innerHTML=`<span class="play-tag ${play.view==="half"?"half":""}">${escapeHtml(play.tag)}</span><h4>${escapeHtml(play.name)}</h4><p>${escapeHtml(play.description)}</p><button class="btn small primary" data-load-builtin="${index}">${escapeHtml(t("loadTimeline"))}</button>`;root.appendChild(card)});
   const users=$("#userPlayList");users.innerHTML=userPlays.length?"":`<p class='help'>${escapeHtml(t("noUserPlays"))}</p>`;userPlays.forEach((play,index)=>{const card=document.createElement("div");card.className="play-card";card.innerHTML=`<span class="play-tag">${escapeHtml(t("myPlay"))}</span><h4>${escapeHtml(play.name)}</h4><p>${escapeHtml(play.description||t("singleTimelinePlay"))}</p><div class="button-row"><button class="btn small primary" data-load-user="${index}">${escapeHtml(t("load"))}</button><button class="btn small danger" data-delete-user="${index}">${escapeHtml(t("delete"))}</button></div>`;users.appendChild(card)});
-  $("#playbookHeading").textContent=state.playbookName||"BOTD Playbook v5.10";$("#playbookName").value=state.playbookName||"BOTD Playbook v5.10";$("#playbookLogo").src=state.playbookLogo||PLAYBOOK_LOGO_DEFAULT
+  $("#playbookHeading").textContent=state.playbookName||"BOTD Playbook v6.0";$("#playbookName").value=state.playbookName||"BOTD Playbook v6.0";$("#playbookLogo").src=state.playbookLogo||PLAYBOOK_LOGO_DEFAULT
 }
 function renderSettings(){
   applyAppearance();const viewButtons=$$("[data-view]");for(const b of viewButtons)b.classList.toggle("primary",b.dataset.view===state.view);
@@ -1108,7 +1231,7 @@ function togglePlayback(){if(ui.playing){stopPlayback({keepDirect:ui.directPuck}
 function stepTime(delta){stopPlayback({keepDirect:false});setPlayhead(ui.playhead+delta)}
 function jumpAction(direction){const times=eventTimes();if(direction<0){const t=[...times].reverse().find(v=>v<ui.playhead-.03);setPlayhead(t??0)}else{const t=times.find(v=>v>ui.playhead+.03);setPlayhead(t??state.timeline.duration)}}
 function addToIce(playerId){
-  if(state.onIce[playerId])return;const p=playerById(playerId);if(!p)return;pushHistory();const index=Object.keys(state.onIce).filter(id=>playerById(id)?.teamId===p.teamId).length;state.onIce[playerId]=setupPositionFor(p.teamId,index,p.id);renderBenches();renderTimeline();renderFrame(ui.playhead);$("#topStatus").textContent=`${p.name} placed on the ice. Select the rink token to open Movement controls.`;scheduleSave();toast(`${p.name} added to the ice.`,1500)
+  if(state.onIce[playerId])return;const p=playerById(playerId);if(!p)return;pushHistory();const index=Object.keys(state.onIce).filter(id=>playerById(id)?.teamId===p.teamId).length;state.onIce[playerId]=setupPositionFor(p.teamId,index,p.id);renderBenches();renderTimeline();renderFrame(ui.playhead);$("#topStatus").textContent=`${p.name} placed on the ice. Select the rink token to reveal its floating controls.`;scheduleSave();toast(`${p.name} added to the ice.`,1500)
 }
 function returnToBench(playerId){if(!state.onIce[playerId])return;pushHistory();delete state.onIce[playerId];state.timeline.movements=state.timeline.movements.filter(c=>c.playerId!==playerId);for(const take of state.timeline.puckTakes)take.events=take.events.filter(e=>e.targetId!==playerId);ui.selectedType=null;ui.selectedId=null;closeRight({clearSelection:true});renderAll();toast(`${playerById(playerId)?.name||"Object"} returned to the bench.`)}
 function newBoard(){
@@ -1225,9 +1348,9 @@ function contentEnd(){let m=0;for(const c of state.timeline.movements)m=Math.max
 function setTimelineDuration(value){const min=Math.max(4,Math.ceil(contentEnd()+.2));state.timeline.duration=clamp(Math.max(Number(value)||12,min),4,60);ui.playhead=clamp(ui.playhead,0,state.timeline.duration);renderSettings();renderTimeline();renderFrame(ui.playhead);scheduleSave()}
 function toggleLeft(open){const drawer=$("#leftDrawer");if(open===undefined)open=document.body.classList.contains("left-hidden");document.body.classList.toggle("left-hidden",!open);drawer.classList.toggle("open",open);updateDrawerHandles();requestAnimationFrame(fitRink)}
 async function toggleFullscreen(){try{if(!document.fullscreenElement){await document.documentElement.requestFullscreen?.();document.body.classList.add("focus-mode")}else{await document.exitFullscreen?.();document.body.classList.remove("focus-mode")}}catch{document.body.classList.toggle("focus-mode")}}
-function saveCurrentPlay(){const name=prompt("Name this Version 5.10 timeline play:",`Play ${userPlays.length+1}`);if(!name)return;userPlays.push(snapshotPlay(name));renderPlaybook();saveSession();toast(`Saved “${name}” to ${state.playbookName}.`)}
+function saveCurrentPlay(){const name=prompt("Name this Version 6.0 timeline play:",`Play ${userPlays.length+1}`);if(!name)return;userPlays.push(snapshotPlay(name));renderPlaybook();saveSession();toast(`Saved “${name}” to ${state.playbookName}.`)}
 function loadUserPlay(index){const play=userPlays[index];if(!play)return;loadPlay(play);state.drawings=deepClone(play.drawings||[]);renderAll()}
-function exportPlaybook(){syncActiveVariation();const payload={format:"BOTD-HOCKEY-PLAYBOOK-V5",version:APP_VERSION,name:state.playbookName,logo:state.playbookLogo,exportedAt:new Date().toISOString(),plays:userPlays};download(`${(state.playbookName||"BOTD_Playbook").replace(/[^a-z0-9]+/gi,"_")}_v5_10.json`,JSON.stringify(payload,null,2),"application/json")}
+function exportPlaybook(){syncActiveVariation();const payload={format:"BOTD-HOCKEY-PLAYBOOK-V5",version:APP_VERSION,name:state.playbookName,logo:state.playbookLogo,exportedAt:new Date().toISOString(),plays:userPlays};download(`${(state.playbookName||"BOTD_Playbook").replace(/[^a-z0-9]+/gi,"_")}_v6_0.json`,JSON.stringify(payload,null,2),"application/json")}
 async function importPlaybookFile(file){try{const data=JSON.parse(await file.text());if(data.format!=="BOTD-HOCKEY-PLAYBOOK-V5"||!Array.isArray(data.plays))throw new Error("This is not a Version 5 playbook file.");state.playbookName=data.name||state.playbookName;state.playbookLogo=data.logo||state.playbookLogo;userPlays=data.plays;renderAll();saveSession();toast(`Imported ${userPlays.length} Version 5 play${userPlays.length===1?"":"s"}.`)}catch(e){toast(e.message||"Could not import playbook.",4200)}}
 function setupMainEvents(){
   document.body.classList.add("right-hidden");
@@ -1961,7 +2084,7 @@ Object.assign(window.BOTD_TEST,{
   actionAnchorCount:()=>document.querySelectorAll(".action-anchor-v53").length
 });
 
-/* Version 5.10 — camera-based Half Ice. The play always remains in canonical Full Ice coordinates. */
+/* Version 6.0 — camera-based Half Ice. The play always remains in canonical Full Ice coordinates. */
 const V59_COORDINATE_SPACE="whole-ice-v59";
 const V59_WORLD_BOUNDS=Object.freeze({minX:26,maxX:974,minY:26,maxY:574,width:1000,height:600});
 const V59_HALF_VIEWBOX=Object.freeze({width:600,height:510});
@@ -2048,7 +2171,7 @@ captureVariationFromStateLike=function(source,id,name,sourceRange=null){
 const applyVariationV58ForV59=applyVariation;
 applyVariation=function(option){if(!option)return;const remembered=state?.halfSide==="left"?"left":"right";applyVariationV58ForV59(option);state.halfSide=option.halfSide==="left"?"left":option.halfSide==="right"?"right":remembered;state.coordinateSpace=V59_COORDINATE_SPACE;state.version=APP_VERSION};
 const makeDefaultStateV58ForV59=makeDefaultState;
-makeDefaultState=function(){const output=makeDefaultStateV58ForV59();output.version=APP_VERSION;output.halfSide="right";output.coordinateSpace=V59_COORDINATE_SPACE;output.playbookName="BOTD Playbook v5.10";output.variations=[captureVariationFromStateLike(output,"option_default","Option 1")];return output};
+makeDefaultState=function(){const output=makeDefaultStateV58ForV59();output.version=APP_VERSION;output.halfSide="right";output.coordinateSpace=V59_COORDINATE_SPACE;output.playbookName="BOTD Playbook v6.0";output.variations=[captureVariationFromStateLike(output,"option_default","Option 1")];return output};
 const normalizeStateV58ForV59=normalizeState;
 function v59PrepareStateInput(raw,sourceVersion=""){
   const input=deepClone(raw&&typeof raw==="object"?raw:{}),version=sourceVersion||v59SourceVersion(input);
@@ -2156,7 +2279,7 @@ function setupV59Events(){
 }
 const initV58ForV59=init;
 init=function(){
-  restore();v59MigrateBuiltins();v59MigrateSavedPlays();state=v59MigrateNormalizedState(state,APP_VERSION);ensureVariations();v59EnsureWorldCamera();applyAppearance();setupColorDialog();setupInspectorEvents();setupMainEvents();setupV52Events();setupV53Events();setupV55Events();setupV56Events();setupV57Events();setupV58Events();setupV59Events();setupLayoutObservers();renderAll();window.__BOTD_READY=true;toast("Version 5.10: Full Ice and Half Ice controls now live directly on the rink, with a compact left/right end selector and centered goalie position badges.",6000)
+  restore();v59MigrateBuiltins();v59MigrateSavedPlays();state=v59MigrateNormalizedState(state,APP_VERSION);ensureVariations();v59EnsureWorldCamera();applyAppearance();setupColorDialog();setupInspectorEvents();setupMainEvents();setupV52Events();setupV53Events();setupV55Events();setupV56Events();setupV57Events();setupV58Events();setupV59Events();setupLayoutObservers();renderAll();window.__BOTD_READY=true;toast("Version 6.0: Full Ice and Half Ice controls now live directly on the rink, with a compact left/right end selector and centered goalie position badges.",6000)
 };
 Object.assign(window.BOTD_TEST,{
   version:APP_VERSION,
@@ -2174,6 +2297,435 @@ Object.assign(window.BOTD_TEST,{
   settingsViewControlCount:()=>$("#tab-settings")?.querySelectorAll("[data-view],#halfEndChoice,#halfLeftEndBtn,#halfRightEndBtn").length||0,
   visibleTimelineSettingsCount:()=>[...($("#tab-settings")?.querySelectorAll("#showRoutes,#routeMode,#durationSetting")||[])].filter(node=>!node.closest("[hidden]")).length
 });
+
+
+/* Version 6.0 — rink-first floating controls and inspectorless puck direction. */
+const V60_MIN_SHOT_DISTANCE=250;
+const V60_MAX_SHOT_DISTANCE=1120;
+const V60_BOARD_ENERGY=.76;
+let v60PerimeterCache=null;
+
+function v60PrepareInspectorlessLayout(){
+  document.body.classList.add("right-hidden","v60-inspectorless");
+  const drawer=$("#rightDrawer");
+  if(drawer){
+    drawer.hidden=true;drawer.inert=true;drawer.setAttribute("aria-hidden","true");
+    drawer.classList.remove("open");drawer.classList.add("closed","v60-compat-inspector");
+    drawer.style.setProperty("display","none","important");
+    drawer.style.setProperty("visibility","hidden","important");
+    drawer.style.setProperty("pointer-events","none","important")
+  }
+  $("#rightDrawerHandle")?.remove();
+}
+
+/* Keep the legacy element only as a non-rendered event host.  No Inspector
+   controls, including the retired Drop and Shoot-to-ice buttons, are created. */
+renderInspector=function(){
+  const drawer=$("#rightDrawer"),root=$("#inspectorContent");
+  if(root){root.replaceChildren();root.hidden=true;root.setAttribute("aria-hidden","true")}
+  if(drawer){drawer.hidden=true;drawer.inert=true;drawer.setAttribute("aria-hidden","true");drawer.style.setProperty("display","none","important")}
+  renderV60TimelineContext()
+};
+
+toggleRight=function(){
+  document.body.classList.add("right-hidden");
+  const drawer=$("#rightDrawer");if(drawer){drawer.hidden=true;drawer.classList.remove("open");drawer.classList.add("closed")}
+  requestAnimationFrame(fitRink)
+};
+openRight=function(){toggleRight(false)};
+
+function v60SetSelectionSource(source){ui.v60SelectionSource=source}
+function v60ClearSelectionSource(){ui.v60SelectionSource=null}
+
+selectItem=function(type,id,open=true){
+  const source=ui.v60SelectionSource||"program";
+  if((type==="player"||type==="clip")&&ui.playing){stopPlayback({keepDirect:false});ui.playhead=round(ui.playhead,3)}
+  ui.v60DirectSelection=(type==="player"||type==="puck")&&source==="rink";
+  const result=selectItemV52(type,id,false);
+  updateActionContext();
+  v60ClearSelectionSource();
+  renderV60SpatialUI(ui.playhead);
+  return result
+};
+
+const updateActionContextV510ForV60=updateActionContext;
+updateActionContext=function(){
+  updateActionContextV510ForV60();
+  const button=$("#changeActionAtPlayheadBtn");
+  if(button)button.hidden=true;
+  renderV60TimelineContext()
+};
+
+const setPlayheadV510ForV60=setPlayhead;
+setPlayhead=function(time,options={}){
+  if(Math.abs((Number(time)||0)-ui.playhead)>.001)ui.v60DirectSelection=false;
+  const result=setPlayheadV510ForV60(time,options);renderV60SpatialUI(ui.playhead);return result
+};
+
+const togglePlaybackV510ForV60=togglePlayback;
+togglePlayback=function(){
+  if(!ui.playing){ui.v60DirectSelection=false;v60CancelTransientMode({clearSelection:false,render:false})}
+  return togglePlaybackV510ForV60()
+};
+
+function v60AnchorElement(){
+  if(!ui.v60DirectSelection)return null;
+  if(ui.selectedType==="player")return $(`#objectLayer [data-player-id="${String(ui.selectedId).replaceAll('"','\\"')}"] .ice-token`)||$(`#objectLayer [data-player-id="${String(ui.selectedId).replaceAll('"','\\"')}"]`);
+  if(ui.selectedType==="puck")return $("#puckLayer [data-puck] g")||$("#puckLayer [data-puck]");
+  return null
+}
+
+function v60PlaceFloating(element,anchorElement,{gap=10}={}){
+  const frame=$("#rinkFrame");if(!element||!anchorElement||!frame)return false;
+  const frameRect=frame.getBoundingClientRect(),anchorRect=anchorElement.getBoundingClientRect();
+  if(!frameRect.width||!frameRect.height||!anchorRect.width)return false;
+  element.hidden=false;element.style.visibility="hidden";element.classList.remove("below");
+  const width=element.offsetWidth,height=element.offsetHeight;
+  let left=anchorRect.left-frameRect.left+anchorRect.width/2-width/2;
+  left=clamp(left,8,Math.max(8,frameRect.width-width-8));
+  let top=anchorRect.top-frameRect.top-height-gap;
+  if(top<8){top=anchorRect.bottom-frameRect.top+gap;element.classList.add("below")}
+  top=clamp(top,8,Math.max(8,frameRect.height-height-8));
+  element.style.left=`${round(left,1)}px`;element.style.top=`${round(top,1)}px`;element.style.visibility="visible";return true
+}
+
+function v60PuckCanBeDirected(){return puckStateAt(ui.playhead).mode!=="travel"}
+function v60ContextMarkup(){
+  if(!ui.v60DirectSelection||ui.playing||ui.recordingMove||ui.v60Mode)return"";
+  if(ui.selectedType==="player"){
+    const player=playerById(ui.selectedId);if(!player||!state.onIce[player.id])return"";
+    return `<div class="v60-context-actions" role="group" aria-label="Actions for ${escapeHtml(player.name)}"><button class="v60-float-button primary" data-v60-action="move" type="button">Move</button><button class="v60-float-button secondary" data-v60-action="bench" type="button">Return to bench</button></div>`
+  }
+  if(ui.selectedType==="puck"&&v60PuckCanBeDirected())return `<div class="v60-context-actions" role="group" aria-label="Puck actions"><button class="v60-float-button primary" data-v60-action="pass" type="button">Pass</button><button class="v60-float-button shot" data-v60-action="shoot" type="button">Shoot</button></div>`;
+  return""
+}
+
+function v60RenderContextMenu(){
+  const menu=$("#v60ContextMenu"),anchor=v60AnchorElement();if(!menu)return;
+  const markup=v60ContextMarkup();
+  if(!markup||!anchor){menu.hidden=true;menu.innerHTML="";return}
+  if(menu.innerHTML!==markup)menu.innerHTML=markup;
+  menu.dataset.kind=ui.selectedType||"";
+  v60PlaceFloating(menu,anchor,{gap:12})
+}
+
+function v60RenderCancel(){
+  const button=$("#v60CancelAction");if(!button)return;
+  const active=!!(ui.recordingMove||ui.v60Mode?.type==="pass"||ui.v60Mode?.type==="shot");button.hidden=!active;
+  if(active){button.textContent="Cancel";button.setAttribute("aria-label",ui.recordingMove?"Cancel movement tracing":ui.v60Mode.type==="pass"?"Cancel pass targeting":"Cancel shot aiming")}
+}
+
+function v60RenderShotPanel(){
+  const panel=$("#v60ShotPanel");if(!panel)return;
+  if(ui.v60Mode?.type!=="shot"){panel.hidden=true;return}
+  const anchor=$("#puckLayer [data-puck] g")||$("#puckLayer [data-puck]");if(!anchor){panel.hidden=true;return}
+  const power=clamp(Number(ui.v60Mode.power)||7,1,10),output=panel.querySelector("output"),slider=panel.querySelector("input");
+  if(slider&&document.activeElement!==slider)slider.value=String(power);if(output)output.textContent=`${Math.round(power*10)}%`;
+  v60PlaceFloating(panel,anchor,{gap:14})
+}
+
+function v60RoundedRinkPerimeter(){
+  if(v60PerimeterCache)return v60PerimeterCache;
+  const b=V59_WORLD_BOUNDS,r=68,points=[];
+  const add=p=>{if(!points.length||dist(points.at(-1),p)>.01)points.push({x:round(p.x,4),y:round(p.y,4)})};
+  const arc=(cx,cy,a0,a1,steps=14)=>{for(let i=1;i<=steps;i++){const a=(a0+(a1-a0)*i/steps)*Math.PI/180;add({x:cx+Math.cos(a)*r,y:cy+Math.sin(a)*r})}};
+  add({x:b.minX+r,y:b.minY});add({x:b.maxX-r,y:b.minY});arc(b.maxX-r,b.minY+r,-90,0);
+  add({x:b.maxX,y:b.maxY-r});arc(b.maxX-r,b.maxY-r,0,90);
+  add({x:b.minX+r,y:b.maxY});arc(b.minX+r,b.maxY-r,90,180);
+  add({x:b.minX,y:b.minY+r});arc(b.minX+r,b.minY+r,180,270);
+  if(dist(points[0],points.at(-1))>.01)points.push({...points[0]});v60PerimeterCache=points;return points
+}
+
+function v60RayBoardHit(start,direction){
+  const perimeter=v60RoundedRinkPerimeter(),far={x:start.x+direction.x*3000,y:start.y+direction.y*3000};let best=null;
+  for(let i=0;i<perimeter.length-1;i++){
+    const hit=lineIntersection(start,far,perimeter[i],perimeter[i+1]);if(!hit||hit.ta<=.0005||hit.tb<-.0001||hit.tb>1.0001)continue;
+    const distance=hit.ta*3000;if(!best||distance<best.distance)best={point:hit.point,distance,index:i,fraction:clamp(hit.tb,0,1)}
+  }
+  return best
+}
+
+function v60FollowPerimeter(hit,direction,remaining){
+  const perimeter=v60RoundedRinkPerimeter(),count=perimeter.length-1,a=perimeter[hit.index],b=perimeter[hit.index+1],segmentLength=dist(a,b)||1,forward={x:(b.x-a.x)/segmentLength,y:(b.y-a.y)/segmentLength},dotForward=forward.x*direction.x+forward.y*direction.y,step=dotForward>=0?1:-1,points=[{x:hit.point.x,y:hit.point.y}];let index=hit.index,point={...hit.point},left=Math.max(0,remaining),guard=0;
+  while(left>.05&&guard++<count*2){
+    const target=step>0?perimeter[index+1]:perimeter[index],segment=dist(point,target);
+    if(left<=segment){const u=segment?left/segment:0;points.push(pointLerp(point,target,u));left=0;break}
+    if(segment>.05)points.push({...target});left-=segment;index=step>0?(index+1)%count:(index-1+count)%count;point=step>0?{...perimeter[index]}:{...perimeter[index+1]}
+  }
+  return points
+}
+
+function v60ShotTravelDistance(power){const p=clamp(Number(power)||7,1,10);return lerp(V60_MIN_SHOT_DISTANCE,V60_MAX_SHOT_DISTANCE,(p-1)/9)}
+function v60GoalAlongRay(start,direction,maxDistance){
+  if(direction.x>.0001&&start.x<925){const d=(925-start.x)/direction.x,y=start.y+direction.y*d;if(d>0&&d<=maxDistance&&y>=257&&y<=343)return{goal:true,distance:d,path:[{...start},{x:925,y},{x:950,y:clamp(y,266,334)}]}}
+  if(direction.x<-.0001&&start.x>75){const d=(75-start.x)/direction.x,y=start.y+direction.y*d;if(d>0&&d<=maxDistance&&y>=257&&y<=343)return{goal:true,distance:d,path:[{...start},{x:75,y},{x:50,y:clamp(y,266,334)}]}}
+  return null
+}
+function v60BuildShotPath(start,aimPoint,power){
+  const dx=Number(aimPoint?.x)-start.x,dy=Number(aimPoint?.y)-start.y,mag=Math.hypot(dx,dy)||1,direction={x:dx/mag,y:dy/mag},travel=v60ShotTravelDistance(power),goal=v60GoalAlongRay(start,direction,travel);
+  if(goal)return{path:goal.path,direction,goal:true,boardFollow:false,distance:polylineLength(goal.path)};
+  const hit=v60RayBoardHit(start,direction);if(!hit||travel<=hit.distance+.1){const end={x:start.x+direction.x*travel,y:start.y+direction.y*travel};return{path:[{...start},clampRinkPoint(end)],direction,goal:false,boardFollow:false,distance:travel}}
+  const remaining=(travel-hit.distance)*V60_BOARD_ENERGY,wall=v60FollowPerimeter(hit,direction,remaining),path=[{...start},...wall];return{path,direction,goal:false,boardFollow:true,distance:polylineLength(path)}
+}
+
+function v60ModeOrigin(){if(ui.v60Mode?.origin&&Number.isFinite(Number(ui.v60Mode.origin.x)))return{x:Number(ui.v60Mode.origin.x),y:Number(ui.v60Mode.origin.y)};const ps=puckStateAt(ui.playhead);return ps?.pos&&Number.isFinite(ps.pos.x)?{x:ps.pos.x,y:ps.pos.y}:{...state.puckStart}}
+function v60DefaultShotAim(origin){
+  const ps=puckStateAt(ui.playhead),holder=ps.holder?playerById(ps.holder):null,vector=holder?attackVector(holder.teamId):origin.x>500?{x:-1,y:0}:{x:1,y:0};return{x:origin.x+vector.x*260,y:origin.y+vector.y*260}
+}
+
+function v60EventOrigin(event){const result=buildPuckTimeline().results.get(event?.id),start=result?.path?.[0];if(start&&Number.isFinite(Number(start.x)))return deepClone(start);const before=puckStateAt(Math.max(0,(Number(event?.time)||0)-.001));return before?.pos&&Number.isFinite(Number(before.pos.x))?deepClone(before.pos):deepClone(state.puckStart)}
+function v60StartPass({editingEventId=null}={}){
+  let existing=null,origin=null;if(editingEventId){existing=activeTake().events.find(item=>item.id===editingEventId);if(!existing)return;origin=v60EventOrigin(existing);setPlayhead(existing.time)}
+  if(!editingEventId&&!v60PuckCanBeDirected())return toast("Wait for the puck to finish traveling before starting another pass.",2600);
+  stopPlayback({keepDirect:false});origin=origin||v60ModeOrigin();ui.v60Mode={type:"pass",origin,point:deepClone(origin),editingEventId};ui.targetMode={type:"pass"};ui.possessionTargetId=null;ui.v60DirectSelection=false;renderFrame(ui.playhead)
+}
+function v60StartShot({editingEventId=null}={}){
+  let existing=null,origin=null;if(editingEventId){existing=activeTake().events.find(item=>item.id===editingEventId);if(!existing)return;origin=v60EventOrigin(existing);setPlayhead(existing.time)}
+  if(!editingEventId&&!v60PuckCanBeDirected())return toast("Wait for the puck to finish traveling before taking a shot.",2600);
+  stopPlayback({keepDirect:false});origin=origin||v60ModeOrigin();const power=clamp(Number(existing?.power||ui.puckOptions?.shotPower)||7,1,10),aim=existing?.aimVector?{x:origin.x+Number(existing.aimVector.x||0)*260,y:origin.y+Number(existing.aimVector.y||0)*260}:existing?.target||v60DefaultShotAim(origin);ui.v60Mode={type:"shot",origin,aim:deepClone(aim),power,editingEventId};ui.targetMode={type:"shot-v60"};ui.possessionTargetId=null;ui.v60DirectSelection=false;renderFrame(ui.playhead)
+}
+
+function v60ResetTransientState(){ui.v60Mode=null;ui.v60ShotDrag=null;ui.targetMode=null;ui.possessionTargetId=null}
+function v60CancelTransientMode({clearSelection=true,render=true}={}){
+  if(ui.recordingMove){cancelMoveRecording();if(clearSelection){ui.selectedType=null;ui.selectedId=null;ui.v60DirectSelection=false}}
+  v60ResetTransientState();if(clearSelection){ui.selectedType=null;ui.selectedId=null;ui.v60DirectSelection=false}
+  const preview=$("#previewLayer");if(preview)preview.innerHTML="";if(render){renderTimeline();renderFrame(ui.playhead)}
+}
+function v60FinishPuckAction(){v60ResetTransientState();ui.selectedType=null;ui.selectedId=null;ui.v60DirectSelection=false;renderAll()}
+
+addPass=function(targetId,time=ui.playhead){
+  const ps=puckStateAt(time);if(ps.mode==="travel")return null;if(!state.onIce[targetId])return null;if(ps.mode==="attached"&&ps.holder===targetId)return null;
+  return addPuckEvent({type:"pass",targetId,time,speed:ui.puckOptions.passSpeed,sauce:ui.puckOptions.sauce,ignoreDefense:ui.puckOptions.passIgnore},{select:false})
+};
+function v60AddPassToSpace(target,time=ui.playhead){
+  const ps=puckStateAt(time);if(ps.mode==="travel")return null;return addPuckEvent({type:"passSpace",target:clampRinkPoint(target),time,speed:ui.puckOptions.passSpeed,sauce:ui.puckOptions.sauce,ignoreDefense:ui.puckOptions.passIgnore},{select:false})
+}
+function v60CommitPassToPlayer(playerId){
+  const ps=puckStateAt(ui.playhead);if(ps.mode==="attached"&&ps.holder===playerId)return toast(`${playerById(playerId)?.name||"That player"} already has the puck.`,2200);
+  const editId=ui.v60Mode?.editingEventId;if(editId){const event=activeTake().events.find(item=>item.id===editId);if(!event)return;pushHistory();event.type="pass";event.targetId=playerId;delete event.target;event.speed=event.speed||ui.puckOptions.passSpeed;event.sauce=event.sauce??ui.puckOptions.sauce;event.ignoreDefense=event.ignoreDefense??ui.puckOptions.passIgnore;v60FinishPuckAction();return}
+  const event=addPass(playerId,ui.playhead);if(event)v60FinishPuckAction()
+}
+function v60CommitPassToPoint(point){
+  const editId=ui.v60Mode?.editingEventId;if(editId){const event=activeTake().events.find(item=>item.id===editId);if(!event)return;pushHistory();event.type="passSpace";event.target=clampRinkPoint(point);delete event.targetId;event.speed=event.speed||ui.puckOptions.passSpeed;event.sauce=event.sauce??ui.puckOptions.sauce;event.ignoreDefense=event.ignoreDefense??ui.puckOptions.passIgnore;v60FinishPuckAction();return}
+  const event=v60AddPassToSpace(point,ui.playhead);if(event)v60FinishPuckAction()
+}
+function v60CommitShot(){
+  const mode=ui.v60Mode;if(mode?.type!=="shot")return;const origin=v60ModeOrigin(),built=v60BuildShotPath(origin,mode.aim,mode.power),payload={type:"shot",target:deepClone(built.path.at(-1)),aimVector:deepClone(built.direction),power:mode.power,ignoreDefense:ui.puckOptions.shotIgnore,boardFollow:built.boardFollow};
+  if(mode.editingEventId){const event=activeTake().events.find(item=>item.id===mode.editingEventId);if(!event)return;pushHistory();Object.assign(event,payload);delete event.targetId;v60FinishPuckAction();return}
+  const event=addPuckEvent(payload,{select:false});if(event)v60FinishPuckAction()
+}
+
+function v60RenderModePreview(){
+  const layer=$("#previewLayer");if(!layer)return;
+  if(ui.recordingMove)return;
+  layer.innerHTML="";layer.style.removeProperty("--v60-shot-dash-speed");const mode=ui.v60Mode;if(!mode)return;const origin=v60ModeOrigin();
+  if(mode.type==="pass"){
+    const targetId=ui.possessionTargetId&&state.onIce[ui.possessionTargetId]?ui.possessionTargetId:null,target=targetId?stickPosition(targetId,ui.playhead):(mode.point||origin);
+    if(dist(origin,target)>2)layer.append(svgEl("path",{d:pathD([origin,target]),class:"v60-pass-preview","marker-end":"url(#passArrow)"}));
+    if(!targetId){const g=svgEl("g",{class:"v60-open-target",transform:`translate(${round(target.x,2)} ${round(target.y,2)})`});g.append(svgEl("circle",{r:13}));g.append(svgEl("path",{d:"M-19 0H19M0-19V19"}));layer.append(g)}
+  }else if(mode.type==="shot"){
+    const built=v60BuildShotPath(origin,mode.aim,mode.power);mode.previewPath=built.path;mode.previewBoardFollow=built.boardFollow;layer.style.setProperty("--v60-shot-dash-speed",`${lerp(1.05,.28,(mode.power-1)/9).toFixed(2)}s`);
+    layer.append(svgEl("path",{d:pathD(built.path),class:"v60-shot-preview v60-shot-preview-black","marker-end":"url(#shotArrow)"}));
+    layer.append(svgEl("path",{d:pathD(built.path),class:"v60-shot-preview v60-shot-preview-red"}));
+    const end=built.path.at(-1),g=svgEl("g",{class:"v60-shot-target",transform:`translate(${round(end.x,2)} ${round(end.y,2)})`});g.append(svgEl("circle",{r:15}));g.append(svgEl("circle",{r:4}));layer.append(g)
+  }
+}
+
+function renderV60SpatialUI(time=ui.playhead){v60RenderContextMenu();v60RenderShotPanel();v60RenderCancel();v60RenderModePreview()}
+const renderFrameV510ForV60=renderFrame;
+renderFrame=function(time=ui.playhead){const result=renderFrameV510ForV60(time);renderV60SpatialUI(time);return result};
+
+const renderTimelineV510ForV60=renderTimeline;
+renderTimeline=function(){
+  renderTimelineV510ForV60();
+  for(const node of $$('[data-event-id]')){const event=activeTake().events.find(item=>item.id===node.dataset.eventId);if(!event)continue;if(event.type==="passSpace"){node.classList.add("pass");node.textContent="Pass → ice";node.title="Pass to open ice"}}
+  renderV60TimelineContext()
+};
+
+function renderV60TimelineContext(){
+  const root=$("#v60TimelineContext");if(!root)return;
+  if(ui.selectedType==="clip"){
+    const clip=state.timeline.movements.find(item=>item.id===ui.selectedId),player=clip?playerById(clip.playerId):null;if(!clip||!player){root.hidden=true;root.innerHTML="";return}
+    const bounds=movementNeighborBounds(clip),end=clip.start+clip.duration;
+    root.hidden=false;root.innerHTML=`<span class="v60-timeline-chip"><strong>${escapeHtml(player.name)}</strong><span>${fmtTime(clip.start)}–${fmtTime(end)}</span></span><button class="btn small primary" data-v60-timeline="move-from" type="button">Move from ${fmtTime(ui.playhead)}</button><button class="btn small" data-v60-timeline="continue-clip" type="button">Continue after clip</button><label class="v60-timeline-number"><span>Start</span><input id="v60ClipStart" type="number" min="${round(bounds.minStart,2)}" max="${round(bounds.maxStart,2)}" step=".05" value="${round(clip.start,2)}" aria-label="Movement clip start in seconds"><em>s</em></label><label class="v60-timeline-number"><span>Duration</span><input id="v60ClipDuration" type="number" min=".05" max="${round(Math.max(.05,bounds.maxDuration),2)}" step=".05" value="${round(clip.duration,2)}" aria-label="Movement clip duration in seconds"><em>s</em></label><button class="btn small" data-v60-timeline="preview-clip" type="button">Preview</button><button class="btn small danger" data-v60-timeline="delete-clip" type="button">Delete</button>`;return
+  }
+  if(ui.selectedType==="event"){
+    const event=activeTake().events.find(item=>item.id===ui.selectedId);if(!event){root.hidden=true;root.innerHTML="";return}const label=event.type==="pass"?"Pass":event.type==="passSpace"?"Pass to ice":event.type==="shot"?"Shot":event.type==="possess"?"Possession":event.type==="drop"?"Drop":event.type;
+    const canRetarget=event.type==="pass"||event.type==="passSpace"||event.type==="shot";
+    root.hidden=false;root.innerHTML=`<span class="v60-timeline-chip"><strong>${escapeHtml(label)}</strong><span>${fmtTime(event.time)}</span></span><label class="v60-timeline-number"><span>Time</span><input id="v60EventTime" type="number" min="0" max="${round(state.timeline.duration,2)}" step=".05" value="${round(event.time,2)}" aria-label="Puck event time in seconds"><em>s</em></label><button class="btn small" data-v60-timeline="playhead-event" type="button">Set playhead</button>${canRetarget?`<button class="btn small primary" data-v60-timeline="retarget-event" type="button">${event.type==="shot"?"Edit shot":"Retarget"}</button>`:""}<button class="btn small danger" data-v60-timeline="delete-event" type="button">Delete</button>`;return
+  }
+  root.hidden=true;root.innerHTML=""
+}
+
+function v60PlayerDropTarget(point,time=0){
+  let best=null;for(const id of Object.keys(state.onIce)){const player=playerById(id);if(!player||player.role==="coach"||player.role==="manager")continue;const position=playerPositionAt(id,time),distance=dist(point,position);if(distance<=40&&(!best||distance<best.distance))best={id,distance}}
+  return best?.id||null
+}
+
+const onRinkPointerDownV510ForV60=onRinkPointerDown;
+onRinkPointerDown=function(event){
+  v60SetSelectionSource("rink");
+  const playerNode=event.target.closest?.("[data-player-id]"),puckNode=event.target.closest?.("[data-puck]");
+  if(ui.v60Mode?.type==="pass"){
+    event.preventDefault();event.stopPropagation();if(playerNode)v60CommitPassToPlayer(playerNode.dataset.playerId);else if(!puckNode)v60CommitPassToPoint(svgPoint(event));return
+  }
+  if(ui.v60Mode?.type==="shot"){
+    event.preventDefault();event.stopPropagation();if(!puckNode){ui.v60ShotDrag={pointerId:event.pointerId};ui.v60Mode.aim=svgPoint(event);try{$("#rinkSvg").setPointerCapture(event.pointerId)}catch{}renderFrame(ui.playhead)}return
+  }
+  return onRinkPointerDownV510ForV60(event)
+};
+
+const onRinkPointerMoveV510ForV60=onRinkPointerMove;
+onRinkPointerMove=function(event){
+  if(ui.v60Mode?.type==="pass"){
+    const playerNode=event.target.closest?.("[data-player-id]");ui.v60Mode.point=playerNode?stickPosition(playerNode.dataset.playerId,ui.playhead):svgPoint(event);renderV60SpatialUI(ui.playhead);return
+  }
+  if(ui.v60Mode?.type==="shot"&&(ui.v60ShotDrag?.pointerId===event.pointerId||event.pointerType==="mouse"&&!event.buttons)){
+    ui.v60Mode.aim=svgPoint(event);renderV60SpatialUI(ui.playhead);return
+  }
+  return onRinkPointerMoveV510ForV60(event)
+};
+
+const onRinkPointerUpV510ForV60=onRinkPointerUp;
+onRinkPointerUp=function(event){
+  if(ui.v60Mode?.type==="shot"&&ui.v60ShotDrag?.pointerId===event.pointerId){ui.v60ShotDrag=null;try{$("#rinkSvg").releasePointerCapture(event.pointerId)}catch{}renderV60SpatialUI(ui.playhead);return}
+  if(ui.dragPuck?.pointerId===event.pointerId){
+    const drag=ui.dragPuck;ui.dragPuck=null;
+    if(drag.moved){
+      const previous=JSON.parse(snapshot());previous.puckStart=drag.origin;const priorOption=previous.variations?.find(item=>item.id===previous.activeVariationId);if(priorOption)priorOption.puckStart=deepClone(drag.origin);ui.history.push(JSON.stringify(previous));if(ui.history.length>80)ui.history.shift();ui.future=[];
+      const targetId=v60PlayerDropTarget(state.puckStart,0);if(targetId){state.puckStart=stickPosition(targetId,0);activeTake().events.push({id:uid("pe"),type:"possess",targetId,time:0,order:Date.now()+Math.random()});toast(`${playerById(targetId)?.name||"Player"} starts with the puck.`,1800)}
+      ui.v60DirectSelection=false;ui.selectedType=null;ui.selectedId=null;renderAll();scheduleSave()
+    }else{v60SetSelectionSource("rink");selectItem("puck","puck",false)}
+    return
+  }
+  const result=onRinkPointerUpV510ForV60(event);if(!ui.pendingTap&&!ui.dragSetup&&!ui.dragPuck)v60ClearSelectionSource();return result
+};
+
+const onRinkPointerCancelV510ForV60=onRinkPointerCancel;
+onRinkPointerCancel=function(event){if(ui.v60ShotDrag?.pointerId===event.pointerId){ui.v60ShotDrag=null;return}return onRinkPointerCancelV510ForV60(event)};
+
+startDirectPlayerMove=function(playerId,mode="playhead",explicitTime=null){
+  const player=playerById(playerId);if(!player||!state.onIce[playerId])return;
+  if(ui.playing)stopPlayback({keepDirect:false});if(ui.recordingMove)cancelMoveRecording();v60ResetTransientState();
+  const requested=explicitTime!==null&&explicitTime!==undefined&&Number.isFinite(Number(explicitTime))?Number(explicitTime):mode==="continuation"?continuationTimeForPlayer(playerId,ui.playhead):ui.playhead,startTime=round(clamp(requested,0,state.timeline.duration),3),startPosition=deepClone(playerPositionAt(playerId,startTime));
+  ui.tool="select";updateToolButtons();ui.playhead=startTime;ui.selectedType="player";ui.selectedId=playerId;ui.v60DirectSelection=false;ui.actionDraft=null;
+  ui.recordingMove={playerId,mode:"selected-player-future",startTime,startPosition,points:[],started:false,pointerId:null,startStamp:0,actionEdit:false};document.body.classList.add("action-recording");
+  const hud=$("#actionRecordHud");if(hud)hud.hidden=true;renderInspector();renderFrame(startTime);updateTimelinePlayhead()
+};
+startMoveRecording=function(playerId,mode="playhead",explicitTime=null){startDirectPlayerMove(playerId,mode,explicitTime)};
+openActionEditor=function(playerId,explicitTime=ui.playhead){startDirectPlayerMove(playerId,"playhead",explicitTime)};
+finishMoveRecording=function(){
+  const rec=ui.recordingMove;if(!rec?.started||rec.points.length<2){cancelMoveRecording();return}
+  const elapsed=Math.max(.35,(performance.now()-rec.startStamp)/1000),duration=clamp(elapsed,.35,Math.max(.35,Math.min(20,60-rec.startTime))),payload={playerId:rec.playerId,startTime:rec.startTime,startPosition:deepClone(rec.startPosition),points:deepClone(rec.points),duration};
+  ui.recordingMove=null;document.body.classList.remove("action-recording");const hud=$("#actionRecordHud");if(hud)hud.hidden=true;const preview=$("#previewLayer");if(preview)preview.innerHTML="";
+  const clip=commitMoveFromPlayhead(payload);ui.v60DirectSelection=false;if(clip){ui.selectedType="clip";ui.selectedId=clip.id;renderAll()}
+};
+cancelMoveRecording=function(){
+  ui.recordingMove=null;document.body.classList.remove("action-recording");const hud=$("#actionRecordHud");if(hud)hud.hidden=true;const preview=$("#previewLayer");if(preview)preview.innerHTML="";ui.v60DirectSelection=false;renderInspector();renderFrame(ui.playhead)
+};
+
+const returnToBenchV510ForV60=returnToBench;
+returnToBench=function(playerId){ui.v60DirectSelection=false;v60ResetTransientState();return returnToBenchV510ForV60(playerId)};
+
+buildPuckTimeline=function(){
+  const take=activeTake(),events=[...take.events].sort((a,b)=>a.time-b.time||(a.order||0)-(b.order||0)),intervals=[],results=new Map();let cursor=0,mode="loose",holder=null,loose={...state.puckStart};
+  const addSteady=end=>{if(end>cursor+.0001){intervals.push({start:cursor,end,kind:mode,holder,pos:loose});cursor=end}};
+  for(const event of events){
+    event.time=clamp(Number(event.time)||0,0,state.timeline.duration);let overridePos=null;
+    if(event.time<cursor-.015){
+      if(!event.replace){results.set(event.id,{valid:false,reason:"Overlaps an earlier puck flight",arrival:cursor});continue}
+      const last=intervals.at(-1);if(last&&event.time>=last.start-.001&&event.time<last.end){if(last.kind==="travel"){const progress=(event.time-last.start)/Math.max(.001,last.end-last.start);last.path=slicePolylineByProgress(last.path,0,progress);overridePos={...last.path.at(-1)};last.end=event.time;const prior=results.get(last.eventId);if(prior)results.set(last.eventId,{...prior,arrival:event.time,path:deepClone(last.path),overridden:true})}else{last.end=event.time;overridePos=last.kind==="attached"&&last.holder?stickPosition(last.holder,event.time):deepClone(last.pos||loose)}}cursor=event.time
+    }
+    addSteady(event.time);const at=event.time,currentPos=event.from?deepClone(event.from):overridePos||(mode==="attached"&&holder?stickPosition(holder,at):{...loose});
+    if(event.type==="place"){mode="loose";holder=null;loose=clampRinkPoint(event.target||currentPos);cursor=at;results.set(event.id,{valid:true,arrival:at,path:[currentPos,loose],replace:!!event.replace});continue}
+    if(event.type==="possess"){if(!state.onIce[event.targetId]){results.set(event.id,{valid:false,reason:"Target is not on the ice"});continue}mode="attached";holder=event.targetId;cursor=at;results.set(event.id,{valid:true,arrival:at,source:null,target:event.targetId,path:[currentPos,stickPosition(event.targetId,at)],replace:!!event.replace});continue}
+    if(event.type==="drop"){mode="loose";holder=null;loose=currentPos;cursor=at;results.set(event.id,{valid:true,arrival:at,path:[currentPos]});continue}
+    if(event.type==="pass"){
+      if(!state.onIce[event.targetId]||(mode==="attached"&&event.targetId===holder)){results.set(event.id,{valid:false,reason:"Choose another on-ice receiver"});continue}
+      const source=mode==="attached"?holder:null,start=source?stickPosition(source,at):currentPos,speed=passSpeedUnits(event.speed||6),prediction=predictReceiverTarget(event.targetId,at,start,speed);let path=[start,prediction.point],length=polylineLength(path),arrival=at+length/speed,collision=null;
+      if(!event.ignoreDefense){collision=firstCollisionOnPath(path,at,arrival,[source,event.targetId].filter(Boolean));if(collision){const bank=boardBankPath(start,prediction.point);if(bank){const bankArrival=at+bank.length/speed,bankHit=firstCollisionOnPath(bank.points,at,bankArrival,[source,event.targetId].filter(Boolean));if(!bankHit){path=bank.points;length=bank.length;arrival=bankArrival;collision=null}}}}
+      if(collision){intervals.push({start:at,end:collision.time,kind:"travel",path:[start,collision.point],spin:true,sauce:!!event.sauce,eventId:event.id});cursor=collision.time;mode="loose";holder=null;loose=collision.point;results.set(event.id,{valid:true,blocked:true,source,target:event.targetId,arrival:collision.time,path:[start,collision.point],collision});continue}
+      intervals.push({start:at,end:arrival,kind:"travel",path,spin:true,sauce:!!event.sauce,eventId:event.id});cursor=arrival;mode="attached";holder=event.targetId;results.set(event.id,{valid:true,source,target:event.targetId,arrival,path,bank:path.length>2});continue
+    }
+    if(event.type==="passSpace"){
+      const source=mode==="attached"?holder:null,start=source?stickPosition(source,at):currentPos,target=clampRinkPoint(event.target||currentPos),speed=passSpeedUnits(event.speed||6);let path=[start,target],arrival=at+polylineLength(path)/speed,collision=null;
+      if(!event.ignoreDefense)collision=firstCollisionOnPath(path,at,arrival,source?[source]:[]);
+      if(collision){path=[start,collision.point];arrival=collision.time}
+      intervals.push({start:at,end:arrival,kind:"travel",path,spin:true,sauce:!!event.sauce,eventId:event.id});cursor=arrival;mode="loose";holder=null;loose=path.at(-1);results.set(event.id,{valid:true,source,target:null,arrival,path,collision,passToSpace:true});continue
+    }
+    if(event.type==="shot"){
+      const source=mode==="attached"?holder:null,start=source?stickPosition(source,at):currentPos,power=event.power||6;let built=null;
+      if(event.aimVector&&Number.isFinite(Number(event.aimVector.x))&&Number.isFinite(Number(event.aimVector.y)))built=v60BuildShotPath(start,{x:start.x+Number(event.aimVector.x)*200,y:start.y+Number(event.aimVector.y)*200},power);
+      const target=clampRinkPoint(event.target||currentPos),legacyGoal=built?{goal:built.goal}:goalResultForShot(start,target);let path=built?built.path:(legacyGoal.goal?[start,legacyGoal.entry,legacyGoal.end]:[start,target]),arrival=at+polylineLength(path)/shotSpeedUnits(power),collision=null,goal=!!(built?.goal||legacyGoal.goal);
+      if(!event.ignoreDefense)collision=firstCollisionOnPath(path,at,arrival,source?[source]:[]);
+      if(collision){path=[start,collision.point];arrival=collision.time;goal=false;const v={x:collision.point.x-start.x,y:collision.point.y-start.y},m=Math.hypot(v.x,v.y)||1,hash=[...String(event.id)].reduce((n,ch)=>(n*33+ch.charCodeAt(0))>>>0,5381),jx=hash%17-8,jy=(hash>>>5)%17-8,rebound=clampRinkPoint({x:collision.point.x-v.x/m*18+jx,y:collision.point.y-v.y/m*18+jy});path.push(rebound);arrival+=.16}
+      intervals.push({start:at,end:arrival,kind:"travel",path,spin:true,eventId:event.id,goal,boardFollow:!!built?.boardFollow});cursor=arrival;mode="loose";holder=null;loose=path.at(-1);results.set(event.id,{valid:true,source,target:null,arrival,path,goal,collision,boardFollow:!!built?.boardFollow});continue
+    }
+  }
+  addSteady(state.timeline.duration+5);return{intervals,results,events}
+};
+
+function setupV60Events(){
+  const layer=$("#v60ContextLayer");
+  layer?.addEventListener("click",event=>{
+    const action=event.target.closest("[data-v60-action]")?.dataset.v60Action;if(action==="move"&&ui.selectedType==="player")startDirectPlayerMove(ui.selectedId,"playhead",ui.playhead);else if(action==="bench"&&ui.selectedType==="player")returnToBench(ui.selectedId);else if(action==="pass")v60StartPass();else if(action==="shoot")v60StartShot();else if(action==="commit-shot")v60CommitShot();else if(action==="cancel")v60CancelTransientMode({clearSelection:true})
+  });
+  $("#v60ShotPower")?.addEventListener("input",event=>{if(ui.v60Mode?.type!=="shot")return;ui.v60Mode.power=clamp(Number(event.target.value)||7,1,10);ui.puckOptions.shotPower=ui.v60Mode.power;renderV60SpatialUI(ui.playhead)});
+  $("#v60TimelineContext")?.addEventListener("click",event=>{
+    const action=event.target.closest("[data-v60-timeline]")?.dataset.v60Timeline;if(!action)return;
+    if(action==="delete-clip"){const clip=state.timeline.movements.find(item=>item.id===ui.selectedId);if(!clip)return;pushHistory();state.timeline.movements=state.timeline.movements.filter(item=>item.id!==clip.id);ui.selectedType=null;ui.selectedId=null;renderAll()}
+    else if(action==="move-from"){const clip=state.timeline.movements.find(item=>item.id===ui.selectedId);if(clip)startDirectPlayerMove(clip.playerId,"playhead",ui.playhead)}
+    else if(action==="continue-clip"){const clip=state.timeline.movements.find(item=>item.id===ui.selectedId);if(clip)startDirectPlayerMove(clip.playerId,"continuation",clip.start+clip.duration)}
+    else if(action==="preview-clip"){const clip=state.timeline.movements.find(item=>item.id===ui.selectedId);if(clip){setPlayhead(clip.start);if(!ui.playing)togglePlayback()}}
+    else if(action==="delete-event"){pushHistory();activeTake().events=activeTake().events.filter(item=>item.id!==ui.selectedId);ui.selectedType=null;ui.selectedId=null;renderAll()}
+    else if(action==="playhead-event"){const item=activeTake().events.find(eventItem=>eventItem.id===ui.selectedId);if(item)setPlayhead(item.time)}
+    else if(action==="retarget-event"){const item=activeTake().events.find(eventItem=>eventItem.id===ui.selectedId);if(item){if(item.type==="shot")v60StartShot({editingEventId:item.id});else v60StartPass({editingEventId:item.id})}}
+  });
+  $("#v60TimelineContext")?.addEventListener("change",event=>{
+    if(event.target.id==="v60ClipDuration"||event.target.id==="v60ClipStart"){
+      const clip=state.timeline.movements.find(item=>item.id===ui.selectedId);if(!clip)return;pushHistory();const bounds=movementNeighborBounds(clip);if(event.target.id==="v60ClipStart")clip.start=round(clamp(Number(event.target.value)||0,bounds.minStart,bounds.maxStart),3);else clip.duration=round(clamp(Number(event.target.value)||clip.duration,.05,bounds.maxDuration),3);sanitizeMovementTracks(clip.playerId);renderAll();return
+    }
+    if(event.target.id==="v60EventTime"){
+      const item=activeTake().events.find(eventItem=>eventItem.id===ui.selectedId);if(!item)return;pushHistory();item.time=round(clamp(Number(event.target.value)||0,0,state.timeline.duration),3);ui.playhead=item.time;renderAll()
+    }
+  });
+  $("#timelineGrid")?.addEventListener("pointerdown",()=>{v60SetSelectionSource("timeline");ui.v60DirectSelection=false;renderV60SpatialUI(ui.playhead)},true);
+  $("#commandBar")?.addEventListener("pointerdown",()=>{ui.v60DirectSelection=false;renderV60SpatialUI(ui.playhead)},true);
+  window.addEventListener("resize",()=>renderV60SpatialUI(ui.playhead));
+  document.addEventListener("keydown",event=>{if(event.key==="Escape"&&(ui.v60Mode||ui.recordingMove)){event.preventDefault();v60CancelTransientMode({clearSelection:true})}},true)
+}
+
+const renderStaticV510ForV60=renderStatic;
+renderStatic=function(){renderStaticV510ForV60();v60PrepareInspectorlessLayout();renderV60SpatialUI(ui.playhead);renderV60TimelineContext()};
+
+const newBoardV510ForV60=newBoard;
+newBoard=function(){
+  pushHistory();stopPlayback();v60ResetTransientState();state.version=APP_VERSION;state.view="whole";state.halfSide="right";state.coordinateSpace=V59_COORDINATE_SPACE;state.onIce={};state.puckStart={x:500,y:300};state.timeline={duration:12,movements:[],puckTakes:[{id:uid("take"),name:"Puck Route A",events:[]}],activeTakeId:null};state.timeline.activeTakeId=state.timeline.puckTakes[0].id;state.drawings=[];const id=uid("option");state.activeVariationId=id;state.variations=[captureVariationFromStateLike(state,id,"Option 1")];ui.playhead=0;ui.selectedType=null;ui.selectedId=null;ui.v60DirectSelection=false;ui.reuseRange={start:null,end:null};setBenchesVisible(true);setTimelineVisible(false);renderAll();scheduleSave();toast("New blank rink: the puck is at center ice and both complete benches are ready.",3600)
+};
+
+const initV510ForV60=init;
+init=function(){
+  window.__BOTD_READY=false;v60PrepareInspectorlessLayout();initV510ForV60();setupV60Events();v60PrepareInspectorlessLayout();renderAll();window.__BOTD_READY=true;toast("Version 6.0: select a player or the puck to reveal only the actions available at that moment.",4200)
+};
+
+Object.assign(window.BOTD_TEST,{
+  version:APP_VERSION,
+  inspectorVisible:()=>{const drawer=$("#rightDrawer"),handle=$("#rightDrawerHandle");return{drawer:!!drawer&&!drawer.hidden&&getComputedStyle(drawer).display!=="none",handle:!!handle&&getComputedStyle(handle).display!=="none"}},
+  selectDirect:(type,id)=>{v60SetSelectionSource("rink");selectItem(type,id,false);return $("#v60ContextMenu")?.textContent.trim()||""},
+  floatingActions:()=>[...document.querySelectorAll("#v60ContextMenu [data-v60-action]")].map(button=>button.textContent.trim()),
+  startPass:v60StartPass,
+  startShot:v60StartShot,
+  commitPassPoint:point=>v60CommitPassToPoint(point),
+  commitPassPlayer:id=>v60CommitPassToPlayer(id),
+  commitShot:v60CommitShot,
+  setShotAim:point=>{if(ui.v60Mode?.type==="shot"){ui.v60Mode.aim=deepClone(point);renderFrame(ui.playhead)}},
+  setShotPower:power=>{if(ui.v60Mode?.type==="shot"){ui.v60Mode.power=clamp(Number(power)||7,1,10);renderFrame(ui.playhead)}},
+  shotPath:(start,aim,power)=>deepClone(v60BuildShotPath(start,aim,power)),
+  transientMode:()=>deepClone(ui.v60Mode),
+  dropPuckOnPlayer:(id)=>{if(!state.onIce[id])return false;pushHistory();state.puckStart=stickPosition(id,0);activeTake().events.unshift({id:uid("pe"),type:"possess",targetId:id,time:0,order:Date.now()});renderAll();return true},
+  timelineContext:()=>$("#v60TimelineContext")?.textContent.trim()||""
+});
+
 
 init();
 </script>

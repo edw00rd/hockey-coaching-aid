@@ -1,118 +1,157 @@
-BOTD Hockey Coaching Aid v5.10
+BOTD Hockey Coaching Aid v6.0
 Creator: Nicholas Heller
 
 Release focus
 -------------
-Version 5.10 moves the Full Ice/Half Ice camera controls out of Board Setup and directly onto the rink. The coach can now change the camera without opening Settings, select the visible Half Ice end with one compact pill, and keep the Settings drawer focused on true setup choices.
+Version 6.0 replaces the permanent right-side Inspector with direct, temporary controls on the rink. The workspace stays quiet until the coach selects a player or the puck; only the actions that can be used at that moment appear beside the selected object, and those controls disappear as soon as the next step begins.
 
-The Version 5.9 camera model remains unchanged: the play always stays in one permanent 1000 x 600 Full Ice coordinate system. These controls rotate or crop the camera only. They never move a player, goalie, puck, route waypoint, shot target, or telestration point.
+The ordered team benches, left Board Setup drawer, permanent drawing/playback toolbar, expandable timeline, Full Ice/Half Ice camera system, play options, and puck routes remain in place.
 
-What's new in v5.10
--------------------
-1. On-rink Full Ice/Half Ice control
-   - The rink badge in the upper-left corner is now an interactive button.
-   - In Full Ice it reads FULL ICE.
-   - Selecting FULL ICE opens HALF ICE - RIGHT END, as requested.
-   - In Half Ice the badge identifies the visible end as HALF ICE - LEFT END or HALF ICE - RIGHT END.
-   - Selecting either Half Ice badge returns directly to FULL ICE.
-   - The control remains available with the Board Setup drawer closed.
+What's new in v6.0
+------------------
+1. Inspectorless rink-first workspace
+   - The right Inspector drawer has been removed from the visible application.
+   - The right-side drawer tab has been removed.
+   - No replacement command dock permanently occupies rink width or toolbar space.
+   - Tapping blank ice, resuming playback, moving the playhead, or beginning an action dismisses temporary contextual controls.
+   - Floating controls remain upright and are clamped inside the visible rink in Full Ice and either Half Ice end.
 
-2. Compact Half Ice end selector
-   - A LEFT/RIGHT pill appears directly above the Half Ice badge.
-   - The selected white thumb sits on the left while the left end is visible and on the right while the right end is visible.
-   - Tapping LEFT or the left half of the pill selects the left end.
-   - Tapping RIGHT or the right half of the pill selects the right end.
-   - Left Arrow and Right Arrow provide keyboard end selection.
-   - The pill is hidden automatically in Full Ice because an end choice is not needed there.
-   - The pill and badge remain inside the rink frame at desktop, tablet, and narrow mobile sizes.
+2. Floating player controls
+   - Selecting an on-ice player pauses playback at the exact current frame when necessary.
+   - Two controls appear beside that player: Move and Return to bench.
+   - Move immediately hides the controls and begins route tracing from the player's exact playhead position.
+   - Everything before the playhead remains unchanged.
+   - Only the selected player's future movement is replaced.
+   - Other player tracks and puck routes remain untouched.
+   - The replacement route is stored as a non-overlapping clip and cannot teleport the player at the splice.
+   - Return to bench removes the player from the ice, restores the bench card in its ordered location, and remains reversible with Undo.
 
-3. Simplified Settings menu
-   - Removed the Ice View card from Settings.
-   - Removed the Half Ice End buttons from Settings.
-   - Removed the Timeline card from Settings.
-   - Settings now presents only Appearance & Language, Token Display, and Center-Ice Logo.
-   - Routes, route display mode, playback, and timeline length remain available through the permanent bottom toolbar and timeline header.
-   - Existing saved display and timeline values continue to load; hidden compatibility state is retained internally without presenting duplicate controls.
+3. Floating puck controls
+   - Selecting the puck reveals only Pass and Shoot.
+   - There is no Drop command.
+   - The controls disappear immediately after Pass or Shoot is selected.
+   - At time zero, the center puck may also be dragged directly onto a player to establish starting possession.
 
-4. Centered goalie position badge
-   - The goalie G now uses the exact center coordinates of its circular role badge.
-   - Central SVG baseline alignment replaces the former vertical offset.
-   - In Half Ice, the G counter-rotates around the actual center of the circle, so it remains centered instead of drifting when the rink turns.
-   - The correction applies to both goalies in Full Ice and at either Half Ice end.
+4. One Pass action for players and open ice
+   - Pass may target an eligible player or any open-ice point.
+   - Passing to a player creates a black dashed pass route and transfers possession on arrival.
+   - Passing to open ice sends the puck to that world coordinate and leaves it loose on arrival.
+   - A short pass beside or behind the carrier provides the practical drop-pass behavior without a separate Drop control.
+   - Existing pass-speed, sauce, and defensive-interception data remain supported.
 
-5. Version 5.9 compatibility
-   - Version 5.9 sessions and playbooks are loaded automatically through the Version 5.10 storage fallback.
-   - Existing Full Ice world coordinates, the selected view, the selected Half Ice end, routes, puck events, drawings, play options, and puck routes are preserved.
-   - The migrated state is normalized to Version 5.10 without rewriting play geometry.
-   - Storage fallback remains available for Versions 5.8 through 5.0 as in the prior release.
+5. Aim-and-power Shot workflow
+   - Shoot opens a temporary aiming interface attached to the puck.
+   - The aiming preview uses the animated red-and-black shot treatment.
+   - A compact floating slider selects power from 10% through 100%.
+   - The preview updates as aim and power change.
+   - The shot is committed only when the temporary Shoot confirmation is selected.
+   - Cancel or Escape leaves the puck route unchanged.
 
-Camera behavior retained from v5.9
-----------------------------------
-- One canonical Full Ice world coordinate system for all play data.
-- True rotated and cropped left-end and right-end Half Ice cameras.
-- Exact player-to-line, goalie-to-net, and puck-to-route relationships across view changes.
-- No geometry rewrite and no Undo/Redo transaction when changing the camera.
-- Inverse-camera touch and pointer mapping for route tracing in Half Ice.
-- Shared Full Ice world-coordinate off-side logic in both views.
-- Correct rotated goalie and staff shapes with upright role lettering.
-- Correct upper-left and upper-right carried-puck placement by player handedness.
+6. Deterministic board-following shots
+   - A shot is never allowed to travel outside the rink boundary.
+   - When its projected route reaches the boards, the preview identifies the exact contact point.
+   - Remaining travel follows the rink perimeter in the direction implied by the incoming shot.
+   - Rounded corners are sampled as part of the same wall path.
+   - Remaining travel is reduced after board contact, creating a repeatable coaching-board representation of rims, hard-arounds, and banked shots.
+   - This is a deterministic diagram model rather than a full puck-friction or collision physics simulation.
 
-Other systems retained
-----------------------
-- Exact selected-player future-route replacement from any playhead frame.
-- Preservation of the selected player's route before the splice point.
-- Independent player movement tracks with no overlapping clips on the same track.
-- Always-available playback controls while the timeline is minimized.
-- Previous/next global action navigation and player-specific clip navigation.
-- Yellow player focus ring for a selected timeline clip.
-- Animated target acquisition for pass and possession selection.
-- Independent PLAY OPTION and PUCK ROUTE selection.
+7. Timeline-header precision controls
+   - Selecting a movement clip still places the yellow identification ring around its player on the ice.
+   - Clip-specific controls now live in the timeline header rather than an Inspector.
+   - Available clip tools include Move from the current playhead, Continue after clip, Start, Duration, Preview, and Delete.
+   - Puck-event tools include Time, Set playhead, Retarget/Edit shot, and Delete.
+   - Direct rink controls and precision timeline controls do not appear at the same time.
+
+8. Clean New workflow
+   - New opens a blank Full Ice surface.
+   - The puck starts at center ice.
+   - No players, goalies, coaches, or managers begin on the ice.
+   - Both complete ordered team benches are visible.
+   - The timeline begins minimized.
+   - Coaches may deploy exactly the personnel they need, then hide the benches without changing the play.
+
+Systems retained
+----------------
+- Two ordered team benches with the established goalie, line, defense-pair, backup-goalie, and staff sequence.
+- Collapsible Team Benches drawer.
+- Left Board Setup drawer and its Teams, Roster, Settings, and Playbook tools.
+- Always-available drawing, Undo/Redo, playback, speed, route-display, and timeline-toggle controls.
+- Independent movement tracks for every player.
+- Exact selected-player route replacement from any playhead frame.
+- No overlapping movement clips on one player's track.
+- Independent PLAY OPTION and PUCK ROUTE combinations.
 - Copy & Reuse play variations.
-- Clean New board with every piece returned to the two team benches.
-- Two ordered team benches and the collapsible Team Benches drawer.
-- Classic skater, goalie, coach, manager, and bench-card designs.
-- Set possession by tapping a player on the ice.
-- Compact Pass Defaults, Shot Defaults, and Highlight disclosures.
-- Flat puck silhouette, black dashed pass routes, and animated red-and-black shot routes.
-- Return to bench in the player identity header.
-- Context-aware Move After Current Path control.
-- Puck-route replacement from the playhead.
-- Collapsible side drawers, themes, languages, highlighting, playbook storage, and JSON transfer.
+- Black dashed pass routes and animated red-and-black shot routes.
+- Animated selection and target-acquisition feedback.
+- One permanent Full Ice world coordinate system.
+- Rotated and cropped left-end and right-end Half Ice cameras with inverse-camera pointer mapping.
+- Shared Full Ice/Half Ice off-side evaluation.
+- Classic skater, goalie, coach, manager, puck, and bench-card designs.
+- Light and dark themes, languages, token labels, highlighting, center logo, playbook storage, JSON import/export, and full-screen mode.
+
+Compatibility and storage
+-------------------------
+- Version 6.0 uses these browser-storage keys:
+  botdHockeyCoachingAid.session.v6_0
+  botdHockeyCoachingAid.playbook.v6_0
+- Version 5.10 session and playbook data migrate automatically on first load.
+- Earlier migration fallbacks retained by Version 5.10 remain available.
+- Existing player geometry, movement clips, play options, puck routes, puck events, drawings, selected camera view, and selected Half Ice end are preserved during migration.
+- Previously saved Drop events remain readable for playback compatibility, but Version 6.0 does not present a Drop creation control.
+
+Quick start
+-----------
+1. Select New for a clean rink, center puck, and two full benches.
+2. Select bench cards to place the desired players, goalies, or staff on the ice.
+3. Hide the benches when more rink space is desired.
+4. Select a player and choose Move, then trace the skating route.
+5. Select the puck and choose Pass, then tap a player or an open-ice point.
+6. Select the puck and choose Shoot, aim on the ice, set power, and confirm.
+7. Use the always-visible playback controls to review the play.
+8. Pause at any frame, select a player, and choose Move to replace only that player's future.
+9. Expand the timeline for exact clip timing, puck-event editing, alternate play options, and alternate puck routes.
 
 Validation performed
 --------------------
 - JavaScript syntax validation with Node.js.
-- Chromium initialization, console-error, and uncaught-runtime-error checks.
-- 74 focused interaction, geometry, layout, state-synchronization, and responsive assertions.
-- A separate Version 5.9 storage-migration test preserving view, selected end, and complete play geometry.
-- A separate multilingual Settings/control test in US English and Swedish.
-- Verified the exact control sequence FULL ICE -> HALF ICE - RIGHT END -> FULL ICE.
-- Verified LEFT and RIGHT pill selection by pointer and keyboard.
-- Verified the pill thumb visually occupies the same side as the selected rink end.
-- Verified Full Ice/Half Ice/end switching leaves setup positions, movement clips, puck routes, puck events, and drawings byte-for-byte unchanged.
-- Verified both goalie G labels share the exact center of their role circles in Full Ice and rotated Half Ice.
-- Verified only Appearance & Language, Token Display, and Center-Ice Logo remain visible in Settings.
-- Verified removed Settings controls do not remain focusable or visible.
-- Verified bottom Routes, route mode, and timeline Length controls still update the underlying state.
+- Chromium initialization, console-error, warning, and uncaught-runtime-error checks.
+- 30 automated release scenario groups passed across core behavior, real pointer interaction, migration, and regression coverage.
+- Verified a clean first load and New with no on-ice personnel, one center puck, complete benches, and a minimized timeline.
+- Verified actual bench-card pointer clicks deploy players.
+- Verified actual player taps reveal exactly Move and Return to bench.
+- Verified actual Move-button selection and pointer tracing commit a replacement route.
+- Verified exact mid-clip prefix preservation, no teleport at the splice, no same-track overlap, and no changes to other player tracks.
+- Verified actual Return-to-bench selection and one-step Undo restoration.
+- Verified actual puck selection reveals exactly Pass and Shoot.
+- Verified directed passes transfer possession on arrival.
+- Verified open-ice passes end with a loose puck and no visible Drop or Shoot-to-ice legacy control.
+- Verified shot aiming, power changes, animated two-layer preview, board contact, perimeter following, and committed-playback path agreement.
+- Verified dragging the starting puck onto a player establishes possession.
+- Verified timeline clip and puck-event controls operate without opening an Inspector.
+- Verified independent play options and puck routes retain pass-to-space and shot events.
+- Verified Version 5.10 session and playbook migration.
+- Verified Full Ice/Half Ice/Full Ice camera changes preserve world geometry exactly.
+- Verified dark-theme and reduced-motion presentation.
 - Verified no duplicate DOM IDs.
-- Responsive checks at 1920 x 1080, 1024 x 768, 820 x 1180, 768 x 1024, and 390 x 844.
-- Verified no page-level horizontal overflow and that the rink-view controls remain inside the rink at every tested size.
+- Responsive checks at 1920 x 1080, 1024 x 768, 820 x 1180, and 390 x 844.
+- Verified no page-level horizontal overflow and that floating controls remain inside the visible rink.
 - Release preview generated at 1920 x 1080.
 
-Physical iPad and Apple Pencil hardware were not available for release validation. Tablet dimensions, touch-sized controls, pointer interaction, keyboard behavior, and responsive layout were exercised through Chromium emulation.
+Physical iPad and Apple Pencil hardware were not available for release validation. Tablet dimensions, touch-sized controls, mouse/pointer gestures, route tracing, puck dragging, and responsive behavior were exercised through Chromium emulation.
 
 Version history
 ---------------
+6.0  - Rink-first floating player and puck controls, visible Inspector removal, unified Pass targeting, aim-and-power Shoot, deterministic board-following shots, timeline-header precision editing, and clean center-puck New workflow.
 5.10 - On-rink Full/Half Ice badge, compact left/right Half Ice pill, simplified Settings menu, centered goalie G badge, and Version 5.9 storage migration.
-5.9 - Canonical Full Ice world, true rotated/cropped left- and right-end Half Ice cameras, exact view-invariant positions and paths, inverse-camera route tracing, shared world-coordinate off-side logic, and Version 5.8 Half Ice recovery.
-5.8 - Experimental coordinate-transform Full/Half Ice orientation, practical Half Ice off-side logic, unobstructed route tracing, timeline-header Move context, and one timeline toggle.
-5.7 - Always-available toolbar playback, circle-on-circle marker preview, timeline-selected player focus ring, animated target acquisition, and independent puck-route selection per play option.
-5.6 - Tap-to-set possession, compact Inspector disclosures, revised puck silhouette, dashed pass notation, animated red-and-black shot notation, top-positioned Return to bench, and context-aware Move After Current Path.
-5.5 - Two ordered team benches, bench drawer, simplified top toolbar, exact selected-player future-route replacement, route-only Move controls, and one timeline toggle.
-5.4 - GPS-style player route replacement from the playhead, clean New board, and experimental category benches.
-5.3 - Frame-accurate action revision workflow and action notation.
-5.2 - Restored classic pieces and benches, canonical loading, safe non-overlapping timeline editing, and Copy & Reuse variations.
-5.1 - Previous GitHub Pages baseline supplied for the Version 5.2 rebuild.
+5.9  - Canonical Full Ice world, true rotated/cropped left- and right-end Half Ice cameras, exact view-invariant positions and paths, inverse-camera route tracing, shared world-coordinate off-side logic, and Version 5.8 Half Ice recovery.
+5.8  - Experimental coordinate-transform Full/Half Ice orientation, practical Half Ice off-side logic, unobstructed route tracing, timeline-header Move context, and one timeline toggle.
+5.7  - Always-available toolbar playback, circle-on-circle marker preview, timeline-selected player focus ring, animated target acquisition, and independent puck-route selection per play option.
+5.6  - Tap-to-set possession, compact Inspector disclosures, revised puck silhouette, dashed pass notation, animated red-and-black shot notation, top-positioned Return to bench, and context-aware Move After Current Path.
+5.5  - Two ordered team benches, bench drawer, simplified top toolbar, exact selected-player future-route replacement, route-only Move controls, and one timeline toggle.
+5.4  - GPS-style player route replacement from the playhead, clean New board, and experimental category benches.
+5.3  - Frame-accurate action revision workflow and action notation.
+5.2  - Restored classic pieces and benches, canonical loading, safe non-overlapping timeline editing, and Copy & Reuse variations.
+5.1  - Previous GitHub Pages baseline supplied for the Version 5.2 rebuild.
 
 GitHub Pages deployment
 -----------------------
