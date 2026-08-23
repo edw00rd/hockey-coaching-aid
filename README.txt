@@ -1,163 +1,199 @@
-BOTD Hockey Coaching Aid v6.0
+BOTD Hockey Coaching Aid v6.1
 Creator: Nicholas Heller
 
 Release focus
 -------------
-Version 6.0 replaces the permanent right-side Inspector with direct, temporary controls on the rink. The workspace stays quiet until the coach selects a player or the puck; only the actions that can be used at that moment appear beside the selected object, and those controls disappear as soon as the next step begins.
+Version 6.1 builds on the rink-first Version 6.0 interface. It adds timeline-based speed editing for skaters and the puck, a cleaner shot workflow, softer on-ice puck motion, pinch zoom, timeline Glow/Blink controls, improved Apple Pencil scrubbing, and a substantially expanded marker system.
 
-The ordered team benches, left Board Setup drawer, permanent drawing/playback toolbar, expandable timeline, Full Ice/Half Ice camera system, play options, and puck routes remain in place.
+The two ordered team benches, left Board Setup drawer, temporary floating rink controls, permanent playback toolbar, expandable timeline, play options, puck routes, Full Ice/Half Ice camera model, and off-side aid remain in place.
 
-What's new in v6.0
+What's new in v6.1
 ------------------
-1. Inspectorless rink-first workspace
-   - The right Inspector drawer has been removed from the visible application.
-   - The right-side drawer tab has been removed.
-   - No replacement command dock permanently occupies rink width or toolbar space.
-   - Tapping blank ice, resuming playback, moving the playhead, or beginning an action dismisses temporary contextual controls.
-   - Floating controls remain upright and are clamped inside the visible rink in Full Ice and either Half Ice end.
+1. Timeline action-time and speed editing
+   - Select a player's movement clip in the timeline to reveal a Skate Time slider in the timeline header.
+   - The slider changes how long that player takes to complete the selected route and therefore changes skating speed without changing route geometry.
+   - A live speed readout is shown beside the slider.
+   - A newly traced route still uses the time taken to trace it as its baseline duration.
+   - The original trace-time baseline remains stored even after the clip duration is edited.
+   - Start time, Move from playhead, Continue, Glow, and Delete remain available in the same contextual timeline toolbar.
 
-2. Floating player controls
-   - Selecting an on-ice player pauses playback at the exact current frame when necessary.
-   - Two controls appear beside that player: Move and Return to bench.
-   - Move immediately hides the controls and begins route tracing from the player's exact playhead position.
-   - Everything before the playhead remains unchanged.
-   - Only the selected player's future movement is replaced.
-   - Other player tracks and puck routes remain untouched.
-   - The replacement route is stored as a non-overlapping clip and cannot teleport the player at the splice.
-   - Return to bench removes the player from the ice, restores the bench card in its ordered location, and remains reversible with Undo.
+2. Pass and shot travel-time editing
+   - Select a pass or shot event in the puck row to reveal a Travel Time slider.
+   - Travel Time changes how quickly the puck follows the recorded route without moving the route's target.
+   - A live puck-speed readout is shown beside the slider.
+   - Shot Power remains an independent control. Power determines projected shot travel and board-following distance; Travel Time determines how quickly the puck completes that route.
+   - Pass and shot timing is constrained so an edited event does not overlap the next puck event.
 
-3. Floating puck controls
-   - Selecting the puck reveals only Pass and Shoot.
-   - There is no Drop command.
-   - The controls disappear immediately after Pass or Shoot is selected.
-   - At time zero, the center puck may also be dragged directly onto a player to establish starting possession.
+3. Cleaner floating player controls
+   - The floating player actions remain limited to Move and Bench.
+   - Return to bench has been shortened to Bench.
+   - Bench is red so its destructive/removal purpose is clear.
+   - The black panel behind the floating controls has been removed. Only the two individual action pills and the animated selection ring remain visible.
 
-4. One Pass action for players and open ice
-   - Pass may target an eligible player or any open-ice point.
-   - Passing to a player creates a black dashed pass route and transfers possession on arrival.
-   - Passing to open ice sends the puck to that world coordinate and leaves it loose on arrival.
-   - A short pass beside or behind the carrier provides the practical drop-pass behavior without a separate Drop control.
-   - Existing pass-speed, sauce, and defensive-interception data remain supported.
+4. Revised shot workflow
+   - Shoot now opens a quiet, thin dashed aim guide rather than the previous large, heavy arrow.
+   - Aim by tapping or dragging to the intended target.
+   - After aiming, a compact card appears near the puck with Power, Re-aim, Cancel, and Shoot controls.
+   - Re-aim returns directly to target selection without discarding the shot setup.
+   - Committing the shot removes all temporary controls.
+   - The timeline can later edit the shot's power and travel time independently.
 
-5. Aim-and-power Shot workflow
-   - Shoot opens a temporary aiming interface attached to the puck.
-   - The aiming preview uses the animated red-and-black shot treatment.
-   - A compact floating slider selects power from 10% through 100%.
-   - The preview updates as aim and power change.
-   - The shot is committed only when the temporary Shoot confirmation is selected.
-   - Cancel or Escape leaves the puck route unchanged.
+5. More natural puck motion on ice
+   - Passes and shots now use eased progression instead of mechanically moving at an identical visual rate through every frame.
+   - Shots decelerate as they travel.
+   - High-power shots that reach the boards follow a denser rounded-rink perimeter path.
+   - Impact angle affects how much remaining travel continues along the wall.
+   - Board travel remains deterministic so a saved play replays the same way every time.
+   - This is a coaching-diagram motion model, not a full physical collision simulation.
 
-6. Deterministic board-following shots
-   - A shot is never allowed to travel outside the rink boundary.
-   - When its projected route reaches the boards, the preview identifies the exact contact point.
-   - Remaining travel follows the rink perimeter in the direction implied by the incoming shot.
-   - Rounded corners are sampled as part of the same wall path.
-   - Remaining travel is reduced after board contact, creating a repeatable coaching-board representation of rims, hard-arounds, and banked shots.
-   - This is a deterministic diagram model rather than a full puck-friction or collision physics simulation.
+6. Pinch-to-zoom rink camera
+   - Pinch with two fingers to zoom in and out around the gesture midpoint.
+   - Continue moving both fingers to pan while zoomed.
+   - Ctrl/Command + mouse wheel provides the equivalent desktop zoom control.
+   - A Reset zoom control appears only while the rink is zoomed or panned.
+   - Switching between Full Ice and Half Ice, choosing another Half Ice end, or starting New resets the zoom while preserving all world positions and paths.
 
-7. Timeline-header precision controls
-   - Selecting a movement clip still places the yellow identification ring around its player on the ice.
-   - Clip-specific controls now live in the timeline header rather than an Inspector.
-   - Available clip tools include Move from the current playhead, Continue after clip, Start, Duration, Preview, and Delete.
-   - Puck-event tools include Time, Set playhead, Retarget/Edit shot, and Delete.
-   - Direct rink controls and precision timeline controls do not appear at the same time.
+7. Timeline Glow and Blink controls
+   - Select a player movement clip or a player row in the timeline and enable Glow.
+   - Enabling Glow reveals a color selector and a Blink checkbox.
+   - Enabling Blink reveals a Blink Rate slider.
+   - The same controls are available for the puck when a puck event or puck row is selected.
+   - Glow and Blink are display effects only; they do not change routes, timing, possession, or event order.
 
-8. Clean New workflow
-   - New opens a blank Full Ice surface.
-   - The puck starts at center ice.
-   - No players, goalies, coaches, or managers begin on the ice.
-   - Both complete ordered team benches are visible.
-   - The timeline begins minimized.
-   - Coaches may deploy exactly the personnel they need, then hide the benches without changing the play.
+8. Improved Apple Pencil timeline scrubbing
+   - The visible yellow playhead arrow remains compact, but its invisible grab target is substantially larger.
+   - Pencil and touch input may begin slightly beside the visible arrow and still acquire it.
+   - Coalesced pointer samples are used when available for smoother movement.
+   - This makes back-and-forth playhead navigation easier without making the timeline visually heavier.
 
-Systems retained
-----------------
-- Two ordered team benches with the established goalie, line, defense-pair, backup-goalie, and staff sequence.
-- Collapsible Team Benches drawer.
-- Left Board Setup drawer and its Teams, Roster, Settings, and Playbook tools.
-- Always-available drawing, Undo/Redo, playback, speed, route-display, and timeline-toggle controls.
-- Independent movement tracks for every player.
-- Exact selected-player route replacement from any playhead frame.
-- No overlapping movement clips on one player's track.
-- Independent PLAY OPTION and PUCK ROUTE combinations.
-- Copy & Reuse play variations.
-- Black dashed pass routes and animated red-and-black shot routes.
-- Animated selection and target-acquisition feedback.
-- One permanent Full Ice world coordinate system.
-- Rotated and cropped left-end and right-end Half Ice cameras with inverse-camera pointer mapping.
-- Shared Full Ice/Half Ice off-side evaluation.
-- Classic skater, goalie, coach, manager, puck, and bench-card designs.
-- Light and dark themes, languages, token labels, highlighting, center logo, playbook storage, JSON import/export, and full-screen mode.
+9. Expanded marker and telestration tools
+   - The marker selector still uses a color circle with a smaller width indicator.
+   - The width indicator is now offset to the lower-right of the color circle.
+   - Line patterns: Solid, Dashed, and Dotted.
+   - Drawing tools: Freehand, Straight Arrow, and Curved Arrow.
+   - Arrow endings: Open and Closed.
+   - With Freehand selected, draw a square, rectangle, triangle, circle, or X and hold the Pencil still at the end of the stroke. The app snaps a recognized gesture into a clean geometric shape.
+   - Shape recognition uses the recorded stroke itself and may leave ambiguous gestures as freehand rather than forcing an incorrect shape.
+   - Undo restores the previous drawing state.
 
-Compatibility and storage
+10. Updated default artwork
+   - The built-in header and center-ice artwork now reads BEWARE OF THE DAWG.
+   - Existing plays that use custom artwork remain unchanged.
+
+Core Version 6.0 interaction model retained
+-------------------------------------------
+- Selecting a player on the rink reveals temporary Move and Bench controls beside that player.
+- Selecting Move begins a route at the player's exact current playhead position.
+- Movement before the playhead is preserved; only that player's future movement is replaced.
+- Selecting the puck reveals temporary Pass and Shoot controls.
+- Pass may target either a player or open ice.
+- A player-directed pass transfers possession on arrival.
+- An open-ice pass leaves the puck loose at its destination.
+- A short pass beside or behind the carrier provides drop-pass behavior without a separate Drop command.
+- Temporary rink controls disappear when an action begins, playback resumes, the playhead changes, blank ice is selected, or the action is completed.
+- Exact clip and puck-event editing remains in the timeline header; no permanent right Inspector is used.
+
+New-play workflow
+-----------------
+1. Select New.
+2. A blank Full Ice surface opens with one puck at center ice and no deployed personnel.
+3. Select the desired player, goalie, and staff cards from either team bench.
+4. Hide the benches when the lineup is ready.
+5. Select a player and choose Move to trace that player's first route.
+6. Select the puck and choose Pass or Shoot.
+7. Expand the timeline for precise action timing, speed, Glow/Blink, play-option, or puck-route editing.
+
+Editing movement speed
+----------------------
+1. Expand the timeline.
+2. Select a movement clip in a player's row.
+3. Use Skate Time to make the action faster or slower.
+4. The route remains unchanged; only its duration and calculated speed change.
+5. Use Move from the displayed playhead time to replace that player's future route, or Continue to add movement after the selected clip.
+
+Editing a pass or shot
+----------------------
+1. Select the pass or shot event in the puck row.
+2. Use Travel Time to change puck speed along that event's route.
+3. For a shot, use Power to change projected travel and board-following distance.
+4. Use the event-time control to reposition the event when needed.
+5. Use Edit/Retarget to choose a different destination, or Delete to remove the event.
+
+Marker gesture guidance
+-----------------------
+- Use one continuous stroke.
+- Finish near the beginning point for closed shapes.
+- Hold the Pencil still briefly at the end of the stroke to request correction.
+- For an X, cross through the center and complete both diagonals in one stroke.
+- Freehand remains available when no supported shape is confidently recognized.
+
+Touch, Pencil, and keyboard notes
+---------------------------------
+- Touch targets are sized for tablet use.
+- Pinch gestures operate on the rink only and do not rewrite play coordinates.
+- Escape cancels an unfinished Move, Pass, Shot, or drawing operation.
+- Space toggles playback when focus is not in an input field.
+- Arrow-key and existing transport controls remain available for timeline navigation.
+- Reduced-motion mode retains all controls and route distinctions while suppressing nonessential animation.
+
+Storage and compatibility
 -------------------------
-- Version 6.0 uses these browser-storage keys:
-  botdHockeyCoachingAid.session.v6_0
-  botdHockeyCoachingAid.playbook.v6_0
-- Version 5.10 session and playbook data migrate automatically on first load.
-- Earlier migration fallbacks retained by Version 5.10 remain available.
-- Existing player geometry, movement clips, play options, puck routes, puck events, drawings, selected camera view, and selected Half Ice end are preserved during migration.
-- Previously saved Drop events remain readable for playback compatibility, but Version 6.0 does not present a Drop creation control.
+- Version 6.1 uses these browser-storage keys:
+  botdHockeyCoachingAid.session.v6_1
+  botdHockeyCoachingAid.playbook.v6_1
+- Version 6.0 session and playbook data migrate automatically on first load.
+- Existing movement clips receive a baseline duration equal to their saved duration when no older trace-time baseline exists.
+- Existing puck events without an explicit travel duration continue to use their prior calculated timing until edited.
+- Existing player and puck data receive disabled Glow defaults, preserving the prior appearance.
+- Earlier migration fallbacks retained by Version 6.0 remain available.
 
-Quick start
------------
-1. Select New for a clean rink, center puck, and two full benches.
-2. Select bench cards to place the desired players, goalies, or staff on the ice.
-3. Hide the benches when more rink space is desired.
-4. Select a player and choose Move, then trace the skating route.
-5. Select the puck and choose Pass, then tap a player or an open-ice point.
-6. Select the puck and choose Shoot, aim on the ice, set power, and confirm.
-7. Use the always-visible playback controls to review the play.
-8. Pause at any frame, select a player, and choose Move to replace only that player's future.
-9. Expand the timeline for exact clip timing, puck-event editing, alternate play options, and alternate puck routes.
+GitHub Pages installation
+-------------------------
+The release ZIP contains exactly four root files:
+
+  index.html
+  README.txt
+  Preview.png
+  .nojekyll
+
+To publish:
+1. Extract the ZIP.
+2. Place all four files directly in the repository root or the selected GitHub Pages publishing folder.
+3. Commit and push the files.
+4. Open the configured GitHub Pages URL after deployment finishes.
+
+The application is self-contained in index.html and does not require a build step, package manager, external JavaScript library, or application server.
 
 Validation performed
 --------------------
 - JavaScript syntax validation with Node.js.
-- Chromium initialization, console-error, warning, and uncaught-runtime-error checks.
-- 30 automated release scenario groups passed across core behavior, real pointer interaction, migration, and regression coverage.
-- Verified a clean first load and New with no on-ice personnel, one center puck, complete benches, and a minimized timeline.
-- Verified actual bench-card pointer clicks deploy players.
-- Verified actual player taps reveal exactly Move and Return to bench.
-- Verified actual Move-button selection and pointer tracing commit a replacement route.
-- Verified exact mid-clip prefix preservation, no teleport at the splice, no same-track overlap, and no changes to other player tracks.
-- Verified actual Return-to-bench selection and one-step Undo restoration.
-- Verified actual puck selection reveals exactly Pass and Shoot.
-- Verified directed passes transfer possession on arrival.
-- Verified open-ice passes end with a loose puck and no visible Drop or Shoot-to-ice legacy control.
-- Verified shot aiming, power changes, animated two-layer preview, board contact, perimeter following, and committed-playback path agreement.
-- Verified dragging the starting puck onto a player establishes possession.
-- Verified timeline clip and puck-event controls operate without opening an Inspector.
-- Verified independent play options and puck routes retain pass-to-space and shot events.
-- Verified Version 5.10 session and playbook migration.
-- Verified Full Ice/Half Ice/Full Ice camera changes preserve world geometry exactly.
-- Verified dark-theme and reduced-motion presentation.
-- Verified no duplicate DOM IDs.
-- Responsive checks at 1920 x 1080, 1024 x 768, 820 x 1180, and 390 x 844.
-- Verified no page-level horizontal overflow and that floating controls remain inside the visible rink.
-- Release preview generated at 1920 x 1080.
+- 81 automated Chromium release assertions.
+- Player movement duration editing and trace-baseline preservation.
+- Pass and shot travel-time editing.
+- Independent shot power and travel-time behavior.
+- Smoothed puck interpolation and rounded board-following paths.
+- Floating Move/Bench styling and streamlined shot controls.
+- Player and puck Glow, Blink, color, and blink-rate state.
+- Marker line patterns, arrow modes, open/closed arrowheads, and five supported held-shape recognizers.
+- Pen-like held-shape input through browser pointer-event emulation.
+- Two-touch pinch zoom, pan, reset, and Full/Half Ice geometry preservation.
+- Enlarged Apple Pencil playhead acquisition and pen-like scrubbing through pointer-event emulation.
+- Version 6.0 storage migration.
+- Responsive checks at 1920 x 1080, 1366 x 1024, 1024 x 768, 820 x 1180, 768 x 1024, and 390 x 844.
+- Duplicate DOM ID, uncaught runtime error, and browser-console error checks.
 
-Physical iPad and Apple Pencil hardware were not available for release validation. Tablet dimensions, touch-sized controls, mouse/pointer gestures, route tracing, puck dragging, and responsive behavior were exercised through Chromium emulation.
+Physical iPad and Apple Pencil hardware were not available for release validation. Tablet dimensions, touch gestures, Pencil-like pointer events, held-shape timing, and playhead acquisition were exercised through Chromium emulation.
 
 Version history
 ---------------
-6.0  - Rink-first floating player and puck controls, visible Inspector removal, unified Pass targeting, aim-and-power Shoot, deterministic board-following shots, timeline-header precision editing, and clean center-puck New workflow.
-5.10 - On-rink Full/Half Ice badge, compact left/right Half Ice pill, simplified Settings menu, centered goalie G badge, and Version 5.9 storage migration.
-5.9  - Canonical Full Ice world, true rotated/cropped left- and right-end Half Ice cameras, exact view-invariant positions and paths, inverse-camera route tracing, shared world-coordinate off-side logic, and Version 5.8 Half Ice recovery.
-5.8  - Experimental coordinate-transform Full/Half Ice orientation, practical Half Ice off-side logic, unobstructed route tracing, timeline-header Move context, and one timeline toggle.
-5.7  - Always-available toolbar playback, circle-on-circle marker preview, timeline-selected player focus ring, animated target acquisition, and independent puck-route selection per play option.
-5.6  - Tap-to-set possession, compact Inspector disclosures, revised puck silhouette, dashed pass notation, animated red-and-black shot notation, top-positioned Return to bench, and context-aware Move After Current Path.
-5.5  - Two ordered team benches, bench drawer, simplified top toolbar, exact selected-player future-route replacement, route-only Move controls, and one timeline toggle.
-5.4  - GPS-style player route replacement from the playhead, clean New board, and experimental category benches.
-5.3  - Frame-accurate action revision workflow and action notation.
-5.2  - Restored classic pieces and benches, canonical loading, safe non-overlapping timeline editing, and Copy & Reuse variations.
-5.1  - Previous GitHub Pages baseline supplied for the Version 5.2 rebuild.
-
-GitHub Pages deployment
------------------------
-Place these four files directly in the repository root:
-
-index.html
-README.txt
-Preview.png
-.nojekyll
+6.1  Timeline speed controls, separate shot power/travel time, revised shot aiming, smoother puck motion, pinch zoom, Glow/Blink timeline controls, improved Pencil scrubbing, expanded smart marker tools, and BEWARE OF THE DAWG artwork.
+6.0  Rink-first floating player/puck actions, Inspector removal, unified Pass targeting, two-stage Shot workflow, deterministic board-following shots, and clean New board.
+5.10 On-rink Full/Half Ice badge, Half Ice end pill, simplified Settings, and centered goalie badge.
+5.9  Canonical Full Ice world with rotated/cropped Half Ice cameras and exact view-invariant play geometry.
+5.8  Initial Full/Half Ice route orientation and Half Ice off-side work.
+5.7  Permanent playback transport, marker preview, timeline player focus, animated targeting, and independent puck-route selection.
+5.6  Tap-to-set possession, compact Inspector sections, revised puck art, and pass/shot route styling.
+5.5  Two ordered team benches, simplified top toolbar, corrected Move from playhead, and one timeline toggle.
+5.4  Independent player rerouting and clean New board.
+5.3  Frame-accurate player-action revision workflow.
+5.2  Restored classic tokens, canonical deployment, collapsible timeline, non-overlapping clips, and Copy & Reuse.
