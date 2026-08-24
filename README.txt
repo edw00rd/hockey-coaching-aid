@@ -1,41 +1,42 @@
-BOTD Hockey Coaching Aid v6.6
+BOTD Hockey Coaching Aid v6.7
 Creator: Nicholas Heller
 
 Release focus
 -------------
-Version 6.6 corrects the natural playback stopping point, installs the supplied BOTD dog tag and BEWARE OF THE DAWG sign as the built-in artwork, and establishes the requested Token Display defaults for new sessions.
+Version 6.7 makes Glow and Blink behave like editable timeline actions. New Glow intervals inherit the duration of the selected hockey action by default, whole-track selections can create a full-timeline Glow interval, and existing Glow/Blink blocks can now be dragged directly to a new time.
 
-What's new in v6.6
+What's new in v6.7
 ------------------
-1. Glow and Blink no longer extend playback
-   - Playback stops at the end of the last real play action even when a Glow or Blink interval continues farther down the timeline.
-   - Player movement clips, puck events, pass/shot arrival times, and enabled timed Telestration actions still determine the natural stopping point.
-   - A long Glow/Blink interval can remain available for editing, but it does not force the play to run through unused timeline time.
-   - Static Telestration does not extend playback. Timed Telestration counts only while its timeline playback feature is enabled.
-   - Pressing Play while the playhead is already at the natural end restarts the play from zero, as before.
+1. Action-sized Glow and Blink defaults
+   - Select a player movement action and enable Glow: the new Glow interval begins at that movement's start time and initially lasts for the same duration as its Skate Time.
+   - Select a Pass or Shot action and enable Glow: the puck Glow interval begins with that puck action and initially lasts for the same duration as its Travel Time.
+   - The Glow Time slider remains available after creation, so the coach can lengthen or shorten the presentation effect independently of the movement, pass, or shot.
+   - Glow color, Blink, and Blink Rate remain editable in the existing timeline toolbar.
+   - Applying Glow to an action replaces only the overlapping Glow range for that player or the puck. Earlier and later Glow intervals are preserved when possible.
 
-2. New default playbook artwork
-   - The supplied metallic B.O.T.D. dog tag is now the default playbook logo.
-   - The application header uses the same playbook artwork.
-   - Uploading a custom playbook logo continues to replace the default and is reflected in the header.
-   - Existing saved custom playbook logos are preserved during migration.
+2. Whole-player timeline Glow
+   - Select a player's complete track by clicking the player's name at the left of the timeline or by clicking empty space in that player's timeline row.
+   - Enabling Glow in that state creates one interval from 0:00.0 through the complete current timeline length.
+   - The selected track receives a subtle yellow indicator at the left so it is clear that the whole row—not one movement clip—is being edited.
+   - The same full-track selection behavior is also available for the puck row.
+   - Turning Glow off while the whole track is selected removes that object's whole-track Glow presentation without changing movement or puck actions.
 
-3. New default center-ice artwork
-   - The supplied BEWARE OF THE DAWG sign is now the built-in center-ice logo.
-   - It is used in Full Ice and in both camera-based Half Ice views.
-   - Existing saved custom center-ice artwork remains unchanged.
-   - Use the existing Center-Ice Logo controls to upload another image, change opacity, or restore the BOTD default.
+3. Direct Glow/Blink timeline dragging
+   - Glow and Blink blocks now use the same direct timeline interaction model as movement and puck actions.
+   - Press anywhere on a Glow/Blink block and drag it left or right with a mouse, finger, or Apple Pencil-like pointer.
+   - The interval's duration, color, Blink state, and Blink Rate remain unchanged while it is moved.
+   - The playhead and timeline toolbar update continuously during the drag.
+   - Dragging is constrained to the current timeline and to the available space between neighboring Glow/Blink intervals for the same player or puck, preventing overlaps.
+   - One Undo restores the pre-drag position, and one Redo reapplies the move.
 
-4. Requested Token Display defaults
-   New sessions and newly initialized boards use:
+4. Selection-state reliability
+   - The timeline toolbar now refreshes immediately when switching between an individual action, a Glow/Blink block, and a whole track.
+   - The Glow checkbox and duration description always reflect the currently selected scope rather than retaining the state of the previous selection.
+   - The visible application subtitle, browser title, saved-state version, and standard playbook name now consistently report Version 6.7.
 
-     Names          Off
-     Numbers        Off
-     Positions      On
-     Leadership     Off
-     Offside light  On
-
-   Existing users' explicitly saved Token Display preferences are preserved when upgrading from Version 6.5.
+Playback behavior retained
+--------------------------
+Glow and Blink remain presentation effects and do not extend the natural playback endpoint. Playback still stops at the end of the final real hockey action—or at the end of enabled timed Telestration—regardless of a longer Glow/Blink interval.
 
 Core systems retained
 ---------------------
@@ -45,7 +46,7 @@ Core systems retained
 - Passes to players or open ice.
 - Shot aiming, editable Shot Power, editable Travel Time, wall-following paths, and board/net ricochets.
 - Editable Skate Time with direct mouse, finger, and Apple Pencil-like dragging.
-- Timeline-based Glow/Blink intervals.
+- Timeline-based Glow/Blink color, Blink, Blink Rate, and Glow Time controls.
 - Optional timed Telestration with DRAW/ERASE clips and Display Time editing.
 - Pinch zoom and pan on the rink.
 - Enlarged timeline-playhead acquisition for Pencil input.
@@ -53,17 +54,19 @@ Core systems retained
 - Apple Pencil-like double-tap switching between Marker and Eraser.
 - Full Ice and camera-based Left/Right Half Ice views with permanent world coordinates.
 - Play Options, independent Puck Routes, Copy & Reuse, Undo/Redo, responsive benches, and the left Board Setup drawer.
+- Metallic B.O.T.D. dog-tag playbook artwork and BEWARE OF THE DAWG center-ice artwork.
+- Default Token Display settings: Names Off, Numbers Off, Positions On, Leadership Off, and Offside light On.
 
 Storage and compatibility
 -------------------------
-Version 6.6 uses these browser-storage keys:
+Version 6.7 uses these browser-storage keys:
 
-  botdHockeyCoachingAid.session.v6_6
-  botdHockeyCoachingAid.playbook.v6_6
+  botdHockeyCoachingAid.session.v6_7
+  botdHockeyCoachingAid.playbook.v6_7
 
-Version 6.5 session and playbook keys are the first migration fallback. The earlier fallbacks retained by Version 6.5 remain available.
+Version 6.6 session and playbook keys are the first migration fallback. The earlier fallbacks retained by Version 6.6 remain available.
 
-The migration updates the standard playbook name from "BOTD Playbook v6.5" to "BOTD Playbook v6.6" while preserving play geometry, rosters, teams, movement, puck routes, drawings, Glow/Blink intervals, timed Telestration, custom artwork, and saved display preferences.
+The migration updates the standard playbook name from "BOTD Playbook v6.6" to "BOTD Playbook v6.7" while preserving play geometry, rosters, teams, movement, puck routes, drawings, Glow/Blink intervals, timed Telestration, custom artwork, display preferences, play options, and Undo-compatible timeline data.
 
 GitHub Pages installation
 -------------------------
@@ -85,19 +88,20 @@ The application is self-contained in index.html. It does not require a build ste
 Validation performed
 --------------------
 - Inline JavaScript syntax validation with Node.js.
-- Version, title, and visible subtitle checks.
-- Exact default Token Display state checks.
-- Embedded dog-tag and center-logo data decoding.
-- Header, playbook-panel, Full Ice, and Half Ice artwork synchronization.
-- Playback-end calculation with a movement ending at 1.4 seconds and a Glow/Blink interval continuing to 12 seconds.
-- Actual requestAnimationFrame playback stopping at 1.4 seconds in that scenario.
-- Timed Telestration included only while enabled.
-- Version 6.5 state normalization and preservation of explicit display preferences.
-- Glow/Blink during moving player and puck playback.
-- Full-duration Pass and Shot timeline blocks.
-- Live Travel Time resizing.
-- Conditional Telestration-track visibility.
-- Responsive-layout checks at 1366 x 1024, 1024 x 768, 820 x 1180, 768 x 1024, and 390 x 844.
-- Browser runtime, console-error, and page-overflow checks.
+- Version, browser-title, visible-subtitle, saved-state, and release-ready checks.
+- Duplicate DOM ID inspection.
+- Action-sized Glow creation from a player movement clip.
+- Puck Glow creation using a Pass action's exact Travel Time.
+- Full-timeline Glow creation from both a player-name selection and empty player-row space.
+- Direct Glow/Blink dragging with mouse input at desktop, tablet, and phone dimensions.
+- Apple Pencil-like pen-pointer Glow dragging.
+- Finger-like touch-pointer Glow dragging.
+- Duration and presentation-property preservation while dragging.
+- Neighbor-boundary clamping and non-overlap behavior.
+- Live playhead and timeline-context updates during dragging.
+- Undo and Redo of a complete Glow-drag operation.
+- Continued Glow Time slider editing after action-sized creation.
+- Responsive-layout checks at 1920 x 1080, 1366 x 1024, 1024 x 768, 820 x 1180, 768 x 1024, and 390 x 844.
+- Browser runtime, console-error, duplicate-ID, and page-overflow checks.
 
-Physical iPad and Apple Pencil hardware were not available for this release validation. Existing Pencil-oriented interaction code remains unchanged from the previously tested Version 6.5 behavior.
+Physical iPad and Apple Pencil hardware were not available for this release validation. Pen-like pointer events, touch input, pointer capture, and responsive tablet layouts were exercised through Chromium emulation.
