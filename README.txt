@@ -1,78 +1,63 @@
-BOTD Hockey Coaching Aid v6.4
+BOTD Hockey Coaching Aid v6.5
 Creator: Nicholas Heller
 
 Release focus
 -------------
-Version 6.4 improves playback finishing behavior, shot aiming and ricochet physics, goalie-number display, and Apple Pencil marker/eraser switching.
+Version 6.5 corrects timeline Glow/Blink playback, replaces puck-travel underlines with full-duration action clips, and removes the empty Telestration track whenever timed Telestration is not enabled.
 
-The shot workflow now gives the coach a complete projected result before the shot is committed. With a mouse, aiming follows hover and locks on click. With a Pencil or finger, aiming follows the contact point while it is held and locks on release. The portion from the puck to the active aiming point is red; the remaining projected travel is light gray. After aim lock, the complete red-and-black shot route remains fixed while Shot Power is adjusted.
+The result is easier to read during playback: visual emphasis remains synchronized to moving players and the moving puck, pass and shot blocks directly show how long those actions take, and static marker artwork no longer consumes an unused timeline row.
 
-What's new in v6.4
+What's new in v6.5
 ------------------
-1. Goalie numbers on the ice
-   - Goalies now display their roster number whenever Numbers is enabled under Token Display.
-   - The number is centered inside the goalie body and remains visible in Full Ice and both Half Ice camera views.
-   - The existing circular G role badge remains separate and centered.
+1. Glow and Blink remain visible during movement
+   - Glow and Blink intervals are evaluated from the current timeline time on every rendered playback frame.
+   - A glowing player remains highlighted while skating along a recorded movement path.
+   - A glowing puck remains highlighted while being carried or traveling through a pass or shot.
+   - Blink timing remains synchronized to the timeline even though player and puck SVG tokens are redrawn while moving.
+   - Pausing inside a Glow/Blink interval displays the full glow so the interval is easy to inspect and edit.
+   - Existing Glow color, Blink, Blink Rate, and Glow Time controls remain in the contextual timeline toolbar.
+   - Multiple player and puck Glow/Blink intervals can still overlap independently.
 
-2. Playback stops at the actual end of the play
-   - Play now stops at the end of the latest recorded action instead of continuing through unused timeline space.
-   - The end calculation includes:
-       * Player movement clips
-       * Pass and shot arrival times
-       * Possession and puck-placement events
-       * Glow/Blink intervals
-       * Timed DRAW and ERASE actions
-   - The timeline may still be longer than the play for editing room, but playback no longer waits for that unused time.
-   - Pressing Play while already at the final action restarts playback from time zero.
+2. Full-duration Pass and Shot clips
+   - A pass or shot now appears as one rounded timeline block extending from the event start to puck arrival.
+   - The previous thin blue travel underline is hidden.
+   - Pass, pass-to-space, and shot actions retain their distinct colors and labels.
+   - Selecting any part of the rounded action block selects that puck event for editing.
+   - The block width updates while Travel Time is dragged, giving immediate visual feedback for puck speed changes.
+   - Shot Power remains independent from Shot Travel Time.
+   - Possession events remain compact point-in-time actions because they do not have travel duration.
 
-3. Live two-part shot projection
-   Apple Pencil or finger:
-   - Press on the rink and drag to aim.
-   - Before lifting, the line from the puck to the contact point is red.
-   - The predicted travel beyond that point is shown in light gray, including board or net interactions.
-   - Lift to lock the aim and reveal Shot Power controls.
+3. Conditional Telestration timeline
+   - With the TELESTRATION checkbox unchecked, marker artwork remains visible as static coaching-board markup.
+   - The Telestration timeline row is completely removed in Static mode, eliminating unused vertical space.
+   - Checking TELESTRATION enables timed playback and expands the DRAW/ERASE track.
+   - Existing recorded DRAW and ERASE clips reappear when timed Telestration is enabled.
+   - Unchecking the control hides the track again without deleting drawings or timed actions.
+   - Display Time editing, progressive drawing playback, eraser playback, Undo/Redo, Play Options, and Copy & Reuse remain available when the timed track is enabled.
 
-   Mouse or trackpad:
-   - Move the pointer over the rink to preview the shot continuously.
-   - The line to the pointer is red and the projected travel beyond it is light gray.
-   - Click the desired aim point to lock the shot and reveal Shot Power controls.
-   - After the click, ordinary mouse movement cannot retarget the shot while the power control is being adjusted.
+Using Glow/Blink on the timeline
+--------------------------------
+1. Select a player row, movement clip, puck row, or puck event.
+2. Move the playhead to the desired start time.
+3. Check Glow in the contextual timeline controls.
+4. Choose a color and optionally enable Blink and adjust Blink Rate.
+5. Move the playhead to the desired end time.
+6. Uncheck Glow.
+7. Press Play. The effect remains synchronized while the selected player or puck moves.
 
-   After aim lock:
-   - The full projected route uses the established thin red-and-black animated treatment.
-   - Re-aim remains available from the power card.
-   - Cancel discards the unfinished shot without changing the puck timeline.
+Using timed Telestration
+-------------------------
+Static coaching-board use:
+- Leave TELESTRATION unchecked.
+- Draw and erase normally.
+- The final artwork remains visible and no Telestration row occupies timeline space.
 
-4. Board and net ricochets
-   - Direct shots into the boards now reflect back onto the ice.
-   - Shallow-angle impacts retain the useful wall-following/rim behavior.
-   - Shots can ricochet from the back and side surfaces of either net.
-   - Net contacts absorb more energy than board contacts.
-   - Remaining shot energy decreases after every contact.
-   - Rounded corners continue to produce smooth, deterministic paths.
-   - The projected path is calculated before commitment, so the coach sees the expected ricochet while aiming and while changing Shot Power.
-   - Saved shots replay along the same deterministic route every time.
-
-5. Apple Pencil marker/eraser switching
-   - While Marker or Eraser is active, two quick Pencil taps at approximately the same rink location switch between the two tools.
-   - The first tap is rolled back when it becomes part of the double-tap gesture, preventing an accidental dot or erase mark.
-   - A pen eraser/barrel-button pointer event also switches tools when the browser exposes one.
-   - Mouse and finger drawing behavior is unchanged.
-
-   Browser note:
-   Standard web pages do not receive a dedicated Apple Pencil hardware barrel-double-tap event on every iPad/browser combination. Version 6.4 therefore recognizes a quick two-tap Pencil gesture on the rink and also listens for a pen eraser-button event when one is supplied by the browser.
-
-Using the revised Shot workflow
--------------------------------
-1. Select the puck.
-2. Select Shoot.
-3. Aim:
-   - Mouse: hover to preview, then click to lock.
-   - Pencil/finger: press and drag to preview, then lift to lock.
-4. Review the red live segment and light-gray projected continuation.
-5. After aim lock, adjust Shot Power.
-6. Review any board-follow, board bounce, or net bounce shown by the complete red-and-black route.
-7. Select Shoot to commit, Re-aim to choose another direction, or Cancel to discard the action.
+Recorded playback use:
+1. Check TELESTRATION.
+2. Draw or erase at the current playhead position.
+3. The action appears as a DRAW or ERASE clip.
+4. Select the clip and use Display Time to change how quickly it plays.
+5. Uncheck TELESTRATION to return to a compact static-markup timeline without deleting the recorded actions.
 
 Core systems retained
 ---------------------
@@ -80,24 +65,25 @@ Core systems retained
 - Inspector-free floating Player and Puck controls.
 - Mid-playhead player rerouting that preserves the past and replaces only the selected player's future.
 - Passes to players or open ice.
-- Editable Skate Time, pass/shot Travel Time, and Shot Power.
-- Timeline-based Glow/Blink intervals.
-- Optional timed Telestration playback with DRAW and ERASE actions.
-- Direct-drag timeline controls for mouse, finger, and Pencil-like pointer input.
+- Two-stage shot aiming, editable Shot Power, editable Travel Time, board-following paths, and board/net ricochets.
+- Editable Skate Time with direct mouse, finger, and Apple Pencil-like dragging.
+- Playback stopping at the final recorded action.
+- Goalie number display.
 - Pinch zoom and pan on the rink.
-- Enlarged Apple Pencil playhead acquisition.
-- Freehand marker, straight and curved arrows, open and closed arrowheads, solid/dashed/dotted lines, and held-shape correction.
+- Enlarged timeline-playhead acquisition for Pencil input.
+- Freehand marker, smart held-shape correction, straight/curved arrows, open/closed arrowheads, and solid/dashed/dotted lines.
+- Apple Pencil-like double-tap switching between Marker and Eraser.
 - Full Ice and camera-based Left/Right Half Ice views with permanent world coordinates.
 - Play Options, independent Puck Routes, Copy & Reuse, Undo/Redo, responsive benches, and the left Board Setup drawer.
 
 Storage and compatibility
 -------------------------
-Version 6.4 uses these browser-storage keys:
+Version 6.5 uses these browser-storage keys:
 
-  botdHockeyCoachingAid.session.v6_4
-  botdHockeyCoachingAid.playbook.v6_4
+  botdHockeyCoachingAid.session.v6_5
+  botdHockeyCoachingAid.playbook.v6_5
 
-Version 6.3 session and playbook data migrate automatically on first load. Earlier migration fallbacks retained by Version 6.3 remain available.
+Version 6.4 session and playbook keys are included as the first migration fallback. Earlier migration fallbacks retained by Version 6.4 remain available.
 
 GitHub Pages installation
 -------------------------
@@ -119,24 +105,28 @@ The application is self-contained in index.html. It does not require a build ste
 Validation performed
 --------------------
 - Full inline JavaScript syntax validation with Node.js.
-- Goalie number rendering in Full Ice and Half Ice.
-- Content-end calculation for player movement, puck travel, Glow/Blink, and Telestration actions.
-- Real-time playback stop at a sub-second final action while the timeline remained 12 seconds long.
-- Mouse hover shot preview, click-to-lock, and protection from accidental retargeting while changing power.
-- Pencil-like contact/drag preview before pointer release and aim lock on release.
-- Goal-path preservation.
-- Direct board ricochets, shallow wall-following paths, rounded corners, and net-back/net-side contacts.
-- Four hundred randomized shot-path checks for finite coordinates and rink containment.
-- Shot-event playback using the saved aim vector and revised physics path.
-- Pencil-like double-tap switching with rollback of the first tap mark.
-- Duplicate DOM ID, uncaught runtime exception, and browser-console error checks.
-- Responsive layout and page-overflow checks at 1366 x 1024, 1024 x 768, 820 x 1180, and 390 x 844.
+- Duplicate DOM ID inspection.
+- Steady player Glow while the player was moving during real requestAnimationFrame playback.
+- Timeline-driven player Blink on/off phases while moving.
+- Timeline-driven puck Blink while the puck was in flight.
+- Paused Glow/Blink inspection behavior.
+- Pass and Shot action-block start, arrival, duration, and pixel-width checks.
+- Removal of the legacy visible travel underlines.
+- Selection of the expanded full-duration puck action block.
+- Live action-block resizing while the Travel Time slider was dragged.
+- Telestration row absent in Static mode, present when enabled, and hidden again when disabled.
+- Static artwork retention while the timed Telestration track was hidden.
+- Version 6.4 state normalization and explicit browser-storage fallback checks.
+- Version 6.4 regressions for goalie numbers, content-aware playback stopping, mouse and Pencil-like shot aiming, board/net ricochets, and Pencil marker/eraser switching.
+- Runtime and browser-console error checks.
+- Responsive layout and page-overflow checks at 1366 x 1024, 1024 x 768, 820 x 1180, 768 x 1024, and 390 x 844.
 - ZIP compressed-data integrity and exact four-file root structure.
 
-Physical iPad and Apple Pencil hardware were not available for release validation. Pencil-like pointer events, touch-sized controls, contact-drag aiming, pointer release, and double-tap timing were exercised through Chromium emulation.
+Physical iPad and Apple Pencil hardware were not available for release validation. Pencil-like pointer input, touch-sized controls, moving Glow/Blink states, and responsive layouts were exercised through Chromium emulation.
 
 Version history
 ---------------
+6.5  Playback-safe timeline Glow/Blink; full-duration rounded Pass and Shot clips; hidden Telestration row in Static mode.
 6.4  Goalie numbers; playback ending at the final action; live red/gray shot projection; mouse click-to-lock aiming; board/net ricochets; and Pencil marker/eraser double-tap switching.
 6.3  Timeline-based Glow/Blink intervals; optional recorded Telestration playback; DRAW and ERASE timeline actions; and editable Display Time.
 6.2  Reliable direct-drag timeline sliders for mouse, finger, and Pencil; larger slider hit areas; stable contextual editor during drag; and uniform floating action geometry.
